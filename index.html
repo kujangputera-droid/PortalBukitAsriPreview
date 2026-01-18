@@ -184,7 +184,7 @@
             PAKET: 'Paket',    
             LANDING_PAGE: 'Link Landing Page'
         };
-        const KOLOM_INFO = {
+        const _INFO = {
             TANGGAL: 'Timestamp', // Sesuaikan dengan header A (Timestamp / Tanggal)
             DARI: 'Dari',         // Kolom C (Sumber RT/RW)
             JUDUL: 'Judul Info',  // Kolom D
@@ -373,8 +373,21 @@
                     ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
                     <div class="card-img-wrap">${imgHTML}</div>
                     <div class="card-body">
-                        <div><span class="meta-tag">${item[KOLOM.RT]} • ${item[KOLOM.KATEGORI]}</span><h3 class="prod-title">${item[KOLOM.NAMA_USAHA]}</h3><p class="prod-desc">Pemilik: ${item[KOLOM.OWNER]}</p></div>
-                        <div class="action-row"><button class="btn-wa-mini" onclick="window.open('https://wa.me/${formatWA(item[KOLOM.WA])}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button></div>
+                        <div>
+                            <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || '-'}</span>
+                            <h3 class="prod-title">${item[KOLOM.NAMA_USAHA] || 'Tanpa Nama'}</h3>
+                            
+                            <p class="prod-desc" style="margin-bottom: 2px;">
+                                👤 Pemilik: ${item[KOLOM.OWNER] || '-'}
+                            </p>
+                            
+                            <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">
+                                📍 ${item[KOLOM.ALAMAT] || '-'}
+                            </p>
+                        </div>
+                        <div class="action-row">
+                            <button class="btn-wa-mini" onclick="window.open('https://wa.me/${formatWA(item[KOLOM.WA])}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button>
+                        </div>
                     </div>`;
                 container.appendChild(card);
             });
@@ -546,6 +559,7 @@
 </script>
 </body>
 </html>
+
 
 
 
