@@ -405,10 +405,21 @@
   </div>
 </div>
     <script>
-        // FUNGSI BUKA TUTUP MODAL
+       // --- MULAI DARI SINI (REPLACE) ---
+
+// VARIABEL PENYIMPANAN SEMENTARA (CACHE)
+let cacheDataKontak = null; 
+
+// FUNGSI BUKA TUTUP MODAL
 function bukaKontak() {
     document.getElementById('modalKontak').style.display = 'flex';
-    ambilDataKontak(); // Ambil data saat dibuka
+    
+    // LOGIKA CERDAS: Cek dulu, datanya udah ada di kantong (cache) belum?
+    if (cacheDataKontak) {
+        renderKontak(cacheDataKontak); // Kalau ada, langsung tampil (INSTANT)
+    } else {
+        ambilDataKontak(); // Kalau belum, baru ambil (Loading)
+    }
 }
 
 function tutupKontak() {
@@ -418,39 +429,54 @@ function tutupKontak() {
 // FUNGSI AMBIL DATA DARI SHEET
 function ambilDataKontak() {
     const container = document.getElementById('list-kontak-container');
-    container.innerHTML = '<p style="text-align:center;">⏳ Mengambil data...</p>';
+    
+    // Cuma tampilkan teks loading kalau cache masih kosong
+    if (!cacheDataKontak) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">⏳ Sedang menghubungi satpam...</p>';
+    }
 
-    fetch(scriptURL + '?action=kontak') // Panggil action kontak
+    fetch(scriptURL + '?action=kontak')
     .then(response => response.json())
     .then(data => {
-        container.innerHTML = ''; // Kosongkan loading
-        
-        if (data.length === 0) {
-            container.innerHTML = '<p>Belum ada data kontak.</p>';
-            return;
-        }
-
-        data.forEach(item => {
-            // Desain Kartu Kontak Simple
-            const card = `
-                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: bold; font-family: sans-serif; color: #334155;">${item.nama}</div>
-                        <div style="font-size: 14px; color: #64748b;">${item.nomor}</div>
-                    </div>
-                    <a href="tel:${item.nomor}" style="background: #22c55e; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;">
-                        Panggil
-                    </a>
-                </div>
-            `;
-            container.innerHTML += card;
-        });
+        cacheDataKontak = data; // SIMPAN DATA KE SAKU (CACHE)
+        renderKontak(data);     // Tampilkan
     })
     .catch(error => {
         console.error('Error:', error);
-        container.innerHTML = '<p style="color:red;">Gagal memuat data.</p>';
+        container.innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data.</p>';
     });
 }
+
+// FUNGSI RENDER TAMPILAN (Biar Rapi)
+function renderKontak(data) {
+    const container = document.getElementById('list-kontak-container');
+    container.innerHTML = ''; // Bersihkan loading
+    
+    if (data.length === 0) {
+        container.innerHTML = '<p style="text-align:center;">Belum ada data kontak.</p>';
+        return;
+    }
+
+    data.forEach(item => {
+        const card = `
+            <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div>
+                    <div style="font-weight: bold; font-family: sans-serif; color: #334155;">${item.nama}</div>
+                    <div style="font-size: 14px; color: #64748b;">${item.nomor}</div>
+                </div>
+                <a href="tel:${item.nomor}" style="background: #22c55e; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;">
+                    Panggil
+                </a>
+            </div>
+        `;
+        container.innerHTML += card;
+    });
+}
+
+// 🔥 CURI START: PANGGIL DATA DIAM-DIAM PAS WEB DIBUKA
+ambilDataKontak(); 
+
+// --- SAMPAI SINI ---
   // SCRIPT AMBIL RUNNING TEXT OTOMATIS
   // Ganti URL_APPS_SCRIPT_KAMU dengan link script kamu yang asli
   const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec'; 
@@ -469,6 +495,7 @@ function ambilDataKontak() {
 </script>
 </body>
 </html>
+
 
 
 
