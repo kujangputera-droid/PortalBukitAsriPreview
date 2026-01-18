@@ -558,7 +558,6 @@
       .then(res => res.json())
       .then(data => cacheKontak = data);
   }
-
   // 1. Fungsi Buka Modal & Langsung Ambil Data
   window.bukaKontak = function() { 
       const container = document.getElementById('list-kontak-container');
@@ -568,7 +567,7 @@
       container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
       
       // Langsung Tembak ke Apps Script (Pake URL yang sama buat Jualan)
-      fetch(`${SCRIPT_URL}?action=kontak`)
+      fetch(`${scriptURL}?action=kontak`)
           .then(res => res.json())
           .then(data => {
               renderKontak(data);
@@ -643,6 +642,7 @@
 </script>
 </body>
 </html>
+
 
 
 
