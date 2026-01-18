@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WargaNet - Direktori Warga</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --primary: #2563EB; --bg-body: #F8FAFC; --card-bg: #FFFFFF; --wa-color: #25D366; --gold: #FFD700; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-body); padding-bottom: 90px; }
+        
+        /* HEADER */
+        .sticky-header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding-top: 10px; padding-bottom: 10px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .running-text-wrap { background: #EFF6FF; color: var(--primary); font-size: 0.8rem; padding: 6px 0; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #DBEAFE; }
+        .search-input { border-radius: 50px; border: 1px solid #E2E8F0; background: #F1F5F9; padding: 12px 20px 12px 45px; width: 100%; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+
+        /* FILTER */
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .filter-pill { white-space: nowrap; padding: 6px 14px; border-radius: 50px; background: #fff; border: 1px solid #E2E8F0; color: #64748B; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+        .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        
+        /* CARD PRODUK */
+        .card-product { background: var(--card-bg); border-radius: 16px; border: none; overflow: hidden; margin-bottom: 15px; display: flex; height: 140px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; cursor: pointer; }
+        .card-product.vip { background: linear-gradient(to right, #FFFBEB, #FFFFFF); border: 1px solid #FCD34D; }
+        .vip-badge { position: absolute; top: 0; left: 0; background: var(--gold); color: #713F12; font-size: 0.6rem; font-weight: bold; padding: 2px 8px; border-bottom-right-radius: 8px; z-index: 2; }
+        .card-img-wrap { width: 130px; height: 100%; flex-shrink: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; } 
+        .no-img { width: 100%; height: 100%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 2rem; }
+        .card-body { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; width: 100%; }
+        .meta-tag { font-size: 0.7rem; color: var(--primary); background: #EFF6FF; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 4px; }
+        .prod-title { font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.3; color: #0F172A; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .prod-desc { font-size: 0.8rem; color: #64748B; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .btn-wa-mini { background: var(--wa-color); color: white; border-radius: 50px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px; border: none; }
+        
+        /* === CARD INFO WARGA (BARU) === */
+        .card-info { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info-badge { font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; }
+        .badge-duka { background: #fee2e2; color: #991b1b; } /* Merah */
+        .badge-acara { background: #dcfce7; color: #166534; } /* Hijau */
+        .badge-umum { background: #e0f2fe; color: #075985; } /* Biru */
+        .info-date { font-size: 0.75rem; color: #94a3b8; }
+        .info-title { font-weight: 700; font-size: 1.1rem; color: #1e293b; margin-bottom: 5px; }
+        .info-desc { font-size: 0.9rem; color: #475569; line-height: 1.5; white-space: pre-wrap; }
+        .info-footer { margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 0.75rem; color: #64748B; display: flex; align-items: center; gap: 5px; }
+
+        /* SKELETON LOADER */
+        .skeleton-card { background: #fff; border-radius: 16px; height: 140px; margin-bottom: 15px; display: flex; overflow: hidden; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .skeleton-img { width: 130px; height: 100%; background: #e2e8f0; flex-shrink: 0; }
+        .skeleton-body { padding: 12px; width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+        .skeleton-line { height: 12px; background: #e2e8f0; border-radius: 4px; width: 100%; }
+        .skeleton-line.short { width: 60%; }
+        .skeleton-line.medium { width: 80%; }
+        .skeleton-anim { animation: shimmer 1.5s infinite linear; background: linear-gradient(to right, #e2e8f0 4%, #f1f5f9 25%, #e2e8f0 36%); background-size: 1000px 100%; }
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+
+        /* MODAL VIDEO */
+        #videoModal .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+        #videoModal .modal-header { border-bottom: none; padding: 15px 20px; background: #fff; }
+        #videoModal .modal-title { font-weight: 700; font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        #videoModal .modal-body { padding: 0; background: #000; }
+        #videoModal .modal-footer { display: block; text-align: center; border-top: none; padding: 20px; background: #fff; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .welcome-text { font-size: 0.85rem; color: #64748B; margin-bottom: 15px; line-height: 1.5; }
+        .btn-masuk { width: 100%; border-radius: 50px; padding: 12px; font-weight: 700; background: var(--primary); border: none; }
+
+        /* MODAL SLIDER */
+        .modal-bottom-sheet .modal-dialog { position: fixed; bottom: 0; margin: 0; width: 100%; max-width: 100%; }
+        .modal-bottom-sheet .modal-content { border-radius: 20px 20px 0 0; border: none; padding-bottom: 20px; max-height: 90vh; overflow-y: auto; }
+        .carousel-inner { background: #000; }
+        .carousel-item { height: 350px; text-align: center; } 
+        .carousel-item img { max-width: 100%; max-height: 100%; width: auto; height: 100%; object-fit: contain; margin: auto; }
+
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1020; border-top-left-radius: 15px; border-top-right-radius: 15px; }
+        .nav-item { text-align: center; color: #94A3B8; text-decoration: none; font-size: 0.7rem; cursor: pointer; }
+        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary); }
+        
+        .video-icon-small { font-size: 1.2rem; color: #64748B; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="running-text-wrap">
+        <marquee scrollamount="5">
+            📢 Selamat Datang di WargaNet! Dukung UMKM tetangga sendiri. • Info Warga terbaru bisa dicek di menu Info.
+        </marquee>
+    </div>
+
+    <div class="sticky-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-building text-primary fa-lg"></i>
+                    <div>
+                        <h6 class="m-0 fw-bold">WargaNet</h6>
+                        <small class="text-muted" style="font-size: 0.7rem;">Direktori Usaha Warga</small>
+                    </div>
+                </div>
+                <i class="fas fa-play-circle video-icon-small" onclick="forceShowVideo()" title="Putar Sambutan"></i>
+            </div>
+            
+            <div class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari tetangga jual apa...">
+            </div>
+            
+            <div class="filter-scroll" id="categoryFilterContainer">
+                <div class="filter-pill active">Semua</div>
+                <div class="filter-pill skeleton-anim" style="width: 60px; border:none;"></div>
+                <div class="filter-pill skeleton-anim" style="width: 80px; border:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-2">
+        <div id="skeletonLoader">
+            <div class="skeleton-card"><div class="skeleton-img skeleton-anim"></div><div class="skeleton-body"><div class="skeleton-line short skeleton-anim"></div><div class="skeleton-line skeleton-anim"></div><div class="skeleton-line medium skeleton-anim"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-img skeleton-anim"></div><div class="skeleton-body"><div class="skeleton-line short skeleton-anim"></div><div class="skeleton-line skeleton-anim"></div><div class="skeleton-line medium skeleton-anim"></div></div></div>
+        </div>
+        
+        <div id="productContainer" class="d-none"></div>
+        
+        <div id="infoContainer" class="d-none"></div>
+        
+        <div id="emptyState" class="text-center py-5 d-none"><p class="text-muted">Data tidak ditemukan.</p></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="navHome" onclick="switchTab('home')">
+            <i class="fas fa-home"></i>Beranda
+        </div>
+        <div class="nav-item" id="navInfo" onclick="switchTab('info')">
+            <i class="fas fa-bullhorn"></i>Info
+        </div>
+        <a href="https://forms.gle/Q9GRfaWzo2YByhWn8" class="nav-item">
+            <i class="fas fa-plus-circle text-primary" style="font-size: 1.4rem;"></i>Jualan
+        </a>
+        <a href="#" class="nav-item" id="btnAdmin">
+            <i class="fas fa-user"></i>Admin
+        </a>
+    </nav>
+
+    <div class="modal fade modal-bottom-sheet" id="detailModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content"><div id="modalContent"></div></div></div>
+    </div>
+
+    <div class="modal fade" id="videoModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">👋 Sambutan Pak RW</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"><div class="video-container"><div id="youtubeFrame"></div></div></div>
+                <div class="modal-footer">
+                    <p class="welcome-text">"Web ini resmi dikelola oleh Pengurus RW 05 untuk memajukan ekonomi warga. Aman & Terpercaya."</p>
+                    <button type="button" class="btn btn-primary btn-masuk" data-bs-dismiss="modal">Masuk ke WargaNet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const WA_ADMIN = '6282260605301';
+        const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
+
+        document.getElementById('youtubeFrame').innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
+        document.getElementById('btnAdmin').href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
+
+        // KOLOM PRODUK
+        const KOLOM = {
+            NAMA_USAHA: 'Nama Usaha / Brand',
+            KATEGORI: 'Kategori',
+            FOTO: 'Foto Produk (berikan yang terbaik, Foto jangan blur)', 
+            WA: 'No WhatsApp',
+            RT: 'RT',
+            ALAMAT: 'Alamat',
+            OWNER: 'Nama',
+            STATUS: 'Status', 
+            PAKET: 'Paket',   
+            LANDING_PAGE: 'Link Landing Page'
+        };
+
+        // KOLOM INFO (Sesuaikan dengan Tab Baru)
+        const KOLOM_INFO = {
+            TANGGAL: 'Tanggal',
+            JUDUL: 'Judul',
+            KATEGORI: 'Kategori',
+            DESKRIPSI: 'Deskripsi',
+            PENULIS: 'Penulis'
+        };
+
+        let allData = [];
+        let infoData = [];
+        let isInfoLoaded = false;
+
+        // --- CORE FUNCTIONS ---
+        function hideSkeleton() {
+            document.getElementById('skeletonLoader').classList.add('d-none');
+        }
+        function showSkeleton() {
+            document.getElementById('skeletonLoader').classList.remove('d-none');
+            document.getElementById('productContainer').classList.add('d-none');
+            document.getElementById('infoContainer').classList.add('d-none');
+        }
+
+        // --- LOAD PRODUK (DEFAULT) ---
+        fetch(GAS_API_URL) // Default load Jualan
+            .then(response => response.json())
+            .then(data => {
+                allData = data;
+                hideSkeleton();
+                document.getElementById('productContainer').classList.remove('d-none');
+                generateCategoryFilters();
+                renderCards(allData);
+                checkAndShowVideo(); // Video popup check
+            });
+
+        // --- LOAD INFO WARGA (Dipanggil pas tab Info diklik) ---
+        function fetchInfoWarga() {
+            if (isInfoLoaded) return; // Kalau udah diload, gak usah load lagi
+            showSkeleton();
+            
+            fetch(GAS_API_URL + '?type=info') // Minta data tipe Info
+                .then(response => response.json())
+                .then(data => {
+                    infoData = data;
+                    isInfoLoaded = true;
+                    hideSkeleton();
+                    renderInfo(infoData);
+                    document.getElementById('infoContainer').classList.remove('d-none');
+                });
+        }
+
+        // --- TAB SWITCHER ---
+        function switchTab(tab) {
+            const productCont = document.getElementById('productContainer');
+            const infoCont = document.getElementById('infoContainer');
+            const filterCont = document.getElementById('categoryFilterContainer');
+            const navHome = document.getElementById('navHome');
+            const navInfo = document.getElementById('navInfo');
+
+            if (tab === 'home') {
+                navHome.classList.add('active');
+                navInfo.classList.remove('active');
+                productCont.classList.remove('d-none');
+                infoCont.classList.add('d-none');
+                filterCont.style.display = 'flex'; // Show filter
+            } else if (tab === 'info') {
+                navHome.classList.remove('active');
+                navInfo.classList.add('active');
+                productCont.classList.add('d-none');
+                filterCont.style.display = 'none'; // Hide filter di info
+                
+                if (!isInfoLoaded) {
+                    fetchInfoWarga();
+                } else {
+                    infoCont.classList.remove('d-none');
+                }
+            }
+        }
+
+        // --- RENDER INFO CARDS ---
+        function renderInfo(data) {
+            const container = document.getElementById('infoContainer');
+            container.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-center py-5"><p class="text-muted">Belum ada info warga terbaru.</p></div>';
+                return;
+            }
+
+            data.forEach(item => {
+                let badgeClass = 'badge-umum';
+                const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
+                if (kat.includes('duka')) badgeClass = 'badge-duka';
+                else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
+
+                // Format Tanggal (Asumsi format Sheet DD/MM/YYYY atau Date Object)
+                let dateStr = item[KOLOM_INFO.TANGGAL];
+                if(dateStr && dateStr.includes('T')) dateStr = dateStr.split('T')[0]; // Simple clean
+
+                const card = document.createElement('div');
+                card.className = 'card-info';
+                card.innerHTML = `
+                    <div class="info-header">
+                        <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
+                        <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
+                    </div>
+                    <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
+                    <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
+                    <div class="info-footer">
+                        <i class="fas fa-pen-nib"></i> Diposting oleh: ${item[KOLOM_INFO.PENULIS]}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- LOGIC LAINNYA (SAMA SEPERTI SEBELUMNYA) ---
+        function checkAndShowVideo() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastSeen = localStorage.getItem('warganet_video_seen');
+            if (lastSeen !== today) {
+                setTimeout(() => {
+                    new bootstrap.Modal(document.getElementById('videoModal')).show();
+                    localStorage.setItem('warganet_video_seen', today);
+                }, 1500);
+            }
+        }
+        function forceShowVideo() {
+            new bootstrap.Modal(document.getElementById('videoModal')).show();
+        }
+        
+        function getAllImages(rawString) {
+            if(!rawString) return [];
+            let rawLinks = rawString.toString().split(',');
+            let cleanLinks = [];
+            rawLinks.forEach(link => {
+                let id = '';
+                let match = link.match(/id=([a-zA-Z0-9_-]{20,})/) || link.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+                if(match) id = match[1];
+                if(id) cleanLinks.push(`https://drive.google.com/thumbnail?id=${id}&sz=w1000`);
+            });
+            return cleanLinks;
+        }
+
+        function renderCards(data) {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = '';
+            
+            data.sort((a, b) => {
+                const aVip = (a[KOLOM.PAKET] || '').toString().toLowerCase() === 'vip';
+                const bVip = (b[KOLOM.PAKET] || '').toString().toLowerCase() === 'vip';
+                return bVip - aVip;
+            });
+
+            data.forEach(item => {
+                const namaUsaha = item[KOLOM.NAMA_USAHA] || 'Tanpa Nama';
+                const kategori = item[KOLOM.KATEGORI] || 'Umum';
+                const rt = item[KOLOM.RT] || '-';
+                const owner = item[KOLOM.OWNER] || '';
+                const alamat = item[KOLOM.ALAMAT] || '';
+                const wa = formatWA(item[KOLOM.WA]);
+                const isVip = (item[KOLOM.PAKET] || '').toString().toLowerCase() === 'vip';
+                const landingPage = item[KOLOM.LANDING_PAGE];
+                let allImgs = getAllImages(item[KOLOM.FOTO]);
+                let thumb = (allImgs.length > 0) ? allImgs[0] : null;
+                let imgHTML = thumb ? `<img src="${thumb}" class="card-img" loading="lazy" referrerpolicy="no-referrer">` : `<div class="no-img"><i class="fas fa-image"></i></div>`;
+                const deskripsiPendek = `Pemilik: ${owner} | Lokasi: ${alamat}`;
+
+                const card = document.createElement('div');
+                card.className = `card-product ${isVip ? 'vip' : ''}`;
+                card.onclick = (e) => {
+                    if(!e.target.closest('.btn-wa-mini')) showDetail(item, allImgs, deskripsiPendek);
+                };
+
+                card.innerHTML = `
+                    ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
+                    <div class="card-img-wrap">${imgHTML}</div>
+                    <div class="card-body">
+                        <div>
+                            <span class="meta-tag">${rt} • ${kategori}</span>
+                            <h3 class="prod-title">${namaUsaha}</h3>
+                            <p class="prod-desc">${deskripsiPendek}</p>
+                        </div>
+                        <div class="action-row">
+                            <button class="btn-wa-mini" onclick="window.open('https://wa.me/${wa}', '_blank')">
+                                <i class="fab fa-whatsapp"></i> Chat
+                            </button>
+                            ${landingPage ? '<span class="badge bg-light text-dark border"><i class="fas fa-globe"></i> Web</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function generateCategoryFilters() {
+            const catSet = new Set(allData.map(d => d[KOLOM.KATEGORI]).filter(Boolean));
+            const container = document.getElementById('categoryFilterContainer');
+            container.innerHTML = '<div class="filter-pill active" onclick="renderCards(allData); setActivePill(this)">Semua</div>';
+            catSet.forEach(cat => {
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.innerText = cat;
+                pill.onclick = function() {
+                    setActivePill(this);
+                    const filtered = allData.filter(item => item[KOLOM.KATEGORI] === cat);
+                    renderCards(filtered);
+                };
+                container.appendChild(pill);
+            });
+        }
+
+        function setActivePill(element) {
+            document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function showDetail(item, images, deskripsiPendek) {
+            const wa = formatWA(item[KOLOM.WA]);
+            const landingPage = item[KOLOM.LANDING_PAGE];
+            let sliderHTML = '';
+            if (images.length === 0) {
+                sliderHTML = `<div style="height:250px; background:#eee; display:flex; align-items:center; justify-content:center; color:#ccc;"><i class="fas fa-image fa-3x"></i></div>`;
+            } else if (images.length === 1) {
+                sliderHTML = `<div class="detail-img-wrap" style="background: black;"><img src="${images[0]}" class="detail-img" referrerpolicy="no-referrer"></div>`;
+            } else {
+                let indicators = '';
+                let slides = '';
+                images.forEach((img, index) => {
+                    const active = index === 0 ? 'active' : '';
+                    indicators += `<button type="button" data-bs-target="#carouselExample" data-bs-slide-to="${index}" class="${active}"></button>`;
+                    slides += `
+                        <div class="carousel-item ${active}">
+                            <img src="${img}" class="d-block w-100" referrerpolicy="no-referrer">
+                        </div>
+                    `;
+                });
+                sliderHTML = `
+                    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+                        <div class="carousel-indicators">${indicators}</div>
+                        <div class="carousel-inner">${slides}</div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                `;
+            }
+
+            let secondaryBtn = '';
+            if (landingPage) {
+                secondaryBtn = `<div class="d-grid gap-2 col-10 mx-auto mt-2"><a href="${landingPage}" target="_blank" class="btn btn-primary rounded-pill fw-bold shadow-sm"><i class="fas fa-globe me-2"></i> Buka Website Toko</a></div>`;
+            } else {
+                secondaryBtn = `<div class="d-grid gap-2 col-10 mx-auto mt-2"><a href="https://wa.me/${WA_ADMIN}?text=Halo+Admin..." target="_blank" class="btn btn-outline-secondary rounded-pill" style="font-size: 0.85rem; border-style: dashed;"><i class="fas fa-magic me-2"></i> Mau Punya Web Begini?</a></div>`;
+            }
+
+            const modalHTML = `
+                <div class="position-relative"><button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle shadow-sm" data-bs-dismiss="modal" style="z-index:10"></button>${sliderHTML}</div>
+                <div class="p-4">
+                    <div class="mb-2"><span class="badge bg-primary">${item[KOLOM.KATEGORI]}</span> <span class="badge bg-warning text-dark">${item[KOLOM.RT]}</span></div>
+                    <h4 class="fw-bold mb-1">${item[KOLOM.NAMA_USAHA]}</h4>
+                    <p class="text-muted small mb-3">${deskripsiPendek}</p>
+                    <div class="alert alert-light border"><small class="fw-bold d-block text-dark">Alamat Lengkap:</small><small class="text-muted">${item[KOLOM.ALAMAT]}</small></div>
+                    ${secondaryBtn}
+                    <div class="d-grid gap-2 col-10 mx-auto mt-2"><a href="https://wa.me/${wa}?text=Halo, saya lihat di WargaNet, mau pesan..." target="_blank" class="btn btn-success rounded-pill fw-bold py-2"><i class="fab fa-whatsapp me-2"></i> Hubungi Penjual</a></div>
+                </div>
+            `;
+            document.getElementById('modalContent').innerHTML = modalHTML;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        function formatWA(number) {
+            if (!number) return '';
+            let clean = number.toString().replace(/[^0-9]/g, '');
+            if (clean.startsWith('0')) clean = '62' + clean.substring(1);
+            return clean;
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const key = e.target.value.toLowerCase();
+            const filtered = allData.filter(item => 
+                (item[KOLOM.NAMA_USAHA] && (item[KOLOM.NAMA_USAHA].toString().toLowerCase().includes(key))) ||
+                (item[KOLOM.KATEGORI] && (item[KOLOM.KATEGORI].toString().toLowerCase().includes(key)))
+            );
+            renderCards(filtered);
+        });
+    </script>
+</body>
+</html>
