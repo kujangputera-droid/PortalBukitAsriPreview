@@ -460,10 +460,8 @@
   </div>
 </div>
     <script>
-  // ============================================================
-  // 🔗 PASTE LINK APPS SCRIPT KAMU DISINI (PENTING!!!)
-  // ============================================================
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec'; 
+ // SATU PINTU UNTUK SEMUA:
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
   // ============================================================
   // 1️⃣ LOGIKA UTAMA: JALANKAN SEMUA SAAT WEB DIBUKA
@@ -538,7 +536,7 @@
   // 3️⃣ BAGIAN RUNNING TEXT
   // ============================================================
   function loadRunningText() {
-      fetch(scriptURL + '?action=running')
+      fetch(`${scriptURL}?action=running`)
       .then(response => response.json())
       .then(data => {
           if(data.text) {
@@ -642,6 +640,7 @@
 </script>
 </body>
 </html>
+
 
 
 
