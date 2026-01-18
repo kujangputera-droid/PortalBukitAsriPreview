@@ -86,9 +86,11 @@
 <body>
 
     <div class="running-text-wrap">
-        <marquee scrollamount="5">
-            📢 Selamat Datang di WargaNet! Dukung UMKM tetangga sendiri. • Info Warga terbaru bisa dicek di menu Info.
-        </marquee>
+    <marquee id="teks-berjalan" scrollamount="5">
+      
+    </marquee>
+        
+</div>
     </div>
 
     <div class="sticky-header">
@@ -381,5 +383,164 @@
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
     </script>
+    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
+  📞 Nomor Penting
+</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
+  <span>📝 Input Info</span>
+</a>
+    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; position: relative; max-height: 80vh; overflow-y: auto;">
+    
+    <span onclick="tutupKontak()" style="position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; font-weight: bold;">&times;</span>
+    
+    <h3 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">☎️ Nomor Darurat</h3>
+    
+    <div id="list-kontak-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+        Loading data...
+    </div>
+  </div>
+</div>
+    <script>
+  // ============================================================
+  // 🔗 PASTE LINK APPS SCRIPT KAMU DISINI (PENTING!!!)
+  // ============================================================
+  const scriptURL = 'GANTI_DENGAN_LINK_APPS_SCRIPT_KAMU_YANG_PANJANG_ITU'; 
+
+  // ============================================================
+  // 1️⃣ LOGIKA UTAMA: JALANKAN SEMUA SAAT WEB DIBUKA
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+      console.log("Website siap! Memulai pengambilan data...");
+      loadInfoWarga();   // Ambil data untuk Beranda/Info
+      loadRunningText(); // Ambil Running Text
+      preloadKontak();   // Curi start data kontak
+  });
+
+  // ============================================================
+  // 2️⃣ BAGIAN INFO WARGA (FIX MASALAH UNDEFINED)
+  // ============================================================
+  function loadInfoWarga() {
+      // Pastikan ID container ini benar (biasanya 'content-container')
+      const container = document.getElementById('content-container'); 
+      
+      if(!container) return; // Kalau gak nemu wadahnya, stop.
+
+      container.innerHTML = '<div style="text-align:center; padding:20px;">⏳ Sedang memuat kabar warga...</div>';
+
+      fetch(scriptURL)
+      .then(response => response.json())
+      .then(data => {
+          container.innerHTML = ''; // Hapus loading
+
+          if (data.length === 0) {
+              container.innerHTML = '<p style="text-align:center;">Belum ada info.</p>';
+              return;
+          }
+
+          // --- LOGIKA RENDER KARTU ---
+          data.forEach(item => {
+              // Format Tanggal
+              let tanggal = new Date(item.timestamp).toLocaleDateString('id-ID');
+
+              // Cek Foto
+              let gambarHTML = '';
+              if (item.foto && item.foto !== "") {
+                  gambarHTML = `<img src="${item.foto}" alt="Foto" style="width:100%; height:200px; object-fit:cover; border-radius:8px 8px 0 0;">`;
+              }
+
+              // RENDER HTML KARTU
+              // Perhatikan: kita pakai item.judul, item.deskripsi (BUKAN ANGKA)
+              const card = `
+                  <div class="card" style="background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:20px; overflow:hidden; border:1px solid #f0f0f0;">
+                      ${gambarHTML}
+                      <div class="card-body" style="padding:15px;">
+                          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                              <span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${item.kategori}</span>
+                              <small style="color:#94a3b8;">${tanggal}</small>
+                          </div>
+                          <h3 style="margin:0 0 10px 0; font-size:18px; color:#1e293b; line-height:1.4;">${item.judul}</h3>
+                          <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:15px;">${item.deskripsi}</p>
+                          <div style="border-top:1px solid #f1f5f9; padding-top:10px; font-size:13px; color:#64748b;">
+                              📢 Info dari: <strong>${item.dari}</strong>
+                          </div>
+                      </div>
+                  </div>
+              `;
+              container.innerHTML += card;
+          });
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          container.innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data info.</p>';
+      });
+  }
+
+  // ============================================================
+  // 3️⃣ BAGIAN RUNNING TEXT
+  // ============================================================
+  function loadRunningText() {
+      fetch(scriptURL + '?action=running')
+      .then(response => response.json())
+      .then(data => {
+          if(data.text) {
+              const marquee = document.getElementById('teks-berjalan');
+              if(marquee) marquee.innerText = data.text;
+          }
+      });
+  }
+
+  // ============================================================
+  // 4️⃣ BAGIAN KONTAK (MODAL POPUP)
+  // ============================================================
+  let cacheKontak = null;
+
+  function preloadKontak() {
+      fetch(scriptURL + '?action=kontak')
+      .then(res => res.json())
+      .then(data => cacheKontak = data);
+  }
+
+  // Fungsi yang dipanggil tombol HTML
+  window.bukaKontak = function() { 
+      document.getElementById('modalKontak').style.display = 'flex';
+      
+      if (cacheKontak) {
+          renderKontak(cacheKontak);
+      } else {
+          document.getElementById('list-kontak-container').innerHTML = '<p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>';
+          preloadKontak();
+          // Cek ulang dalam 1.5 detik
+          setTimeout(() => { if(cacheKontak) renderKontak(cacheKontak); }, 1500);
+      }
+  }
+
+  window.tutupKontak = function() {
+      document.getElementById('modalKontak').style.display = 'none';
+  }
+
+  function renderKontak(data) {
+      const container = document.getElementById('list-kontak-container');
+      container.innerHTML = '';
+      
+      if (data.length === 0) {
+          container.innerHTML = '<p style="text-align:center;">Data kontak kosong.</p>';
+          return;
+      }
+
+      data.forEach(item => {
+          container.innerHTML += `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #f1f5f9;">
+                  <div>
+                      <div style="font-weight:bold; color:#334155;">${item.nama}</div>
+                      <div style="font-size:13px; color:#64748b;">${item.nomor}</div>
+                  </div>
+                  <a href="tel:${item.nomor}" style="background:#22c55e; color:white; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold;">Panggil 📞</a>
+              </div>`;
+      });
+  }
+</script>
 </body>
 </html>
+
+
