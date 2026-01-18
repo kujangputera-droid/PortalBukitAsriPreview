@@ -589,7 +589,7 @@
           return;
       }
 
-      // 1. HEADER TUNGGAL + TOMBOL SILANG (Sticky & Fix)
+      // --- 1. HEADER TUNGGAL (FIXED & STICKY) ---
       const headerHtml = `
           <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
               <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
@@ -601,10 +601,11 @@
           </div>
       `;
 
-      // 2. LIST NOMOR (Tanpa grouping kategori lagi biar ga manjat)
+      // --- 2. LIST NOMOR (SAYA PAKSA TANPA GROUPING) ---
       const listHtml = `
           <div class="list-group list-group-flush">
               ${data.map(item => {
+                  // Pastikan nama kolom sesuai JSON: 'Nama' dan 'Nomor'
                   let nama = item['Nama'] || 'Tanpa Nama';
                   let rawNum = item['Nomor'] || '';
                   let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
@@ -612,7 +613,7 @@
 
                   let isEmergency = cleanNum.length <= 4;
                   let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
-                  let icon = isEmergency ? 'fa-phone' : 'fab fa-whatsapp';
+                  let icon = isEmergency ? 'fa-phone-alt' : 'fa-whatsapp';
                   let btnColor = isEmergency ? '#ef4444' : '#22c55e';
                   let btnText = isEmergency ? 'Panggil' : 'WA';
 
@@ -623,7 +624,7 @@
                           <div style="font-size:0.8rem; color:#64748b; margin-top: 2px;">${rawNum}</div>
                       </div>
                       <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px; white-space: nowrap;">
-                          <i class="fas ${icon}"></i> ${btnText}
+                          <i class="fab ${icon}"></i> ${btnText}
                       </a>
                   </div>`;
               }).join('')}
@@ -635,21 +636,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
