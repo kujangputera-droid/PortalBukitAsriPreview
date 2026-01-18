@@ -556,21 +556,22 @@
       .then(res => res.json())
       .then(data => cacheKontak = data);
   }
-  // 1. Fungsi Buka Modal & Langsung Ambil Data
-  window.bukaKontak = function() { 
+  // 1. Fungsi Buka Modal & Ambil Data Segar (Tanpa Cache)
+window.bukaKontak = function() { 
       const container = document.getElementById('list-kontak-container');
       document.getElementById('modalKontak').style.display = 'flex';
       
-      // Tampilkan Loading
+      // Reset tampilan ke loading
       container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
       
-      // Langsung Tembak ke Apps Script (Pake URL yang sama buat Jualan)
-      fetch(`${scriptURL}?action=kontak`)
+      // Ambil data langsung dari Google Sheet
+      fetch(`${scriptURL}?action=kontak&t=${new Date().getTime()}`)
           .then(res => res.json())
           .then(data => {
-              renderKontak(data);
+              renderKontak(data); // Panggil fungsi gambar list
           })
           .catch(err => {
+              console.error(err);
               container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
           });
   }
@@ -636,4 +637,5 @@
 </script>
 </body>
 </html>
+
 
