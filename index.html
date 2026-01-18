@@ -559,91 +559,91 @@
       .then(data => cacheKontak = data);
   }
 
-  // Fungsi yang dipanggil tombol HTML
+  // 1. Fungsi Buka Modal & Langsung Ambil Data
   window.bukaKontak = function() { 
+      const container = document.getElementById('list-kontak-container');
       document.getElementById('modalKontak').style.display = 'flex';
       
-      if (cacheKontak) {
-          renderKontak(cacheKontak);
-      } else {
-          document.getElementById('list-kontak-container').innerHTML = '<p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>';
-          preloadKontak();
-          // Cek ulang dalam 1.5 detik
-          setTimeout(() => { if(cacheKontak) renderKontak(cacheKontak); }, 1500);
-      }
+      // Tampilkan Loading
+      container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
+      
+      // Langsung Tembak ke Apps Script (Pake URL yang sama buat Jualan)
+      fetch(`${SCRIPT_URL}?action=kontak`)
+          .then(res => res.json())
+          .then(data => {
+              renderKontak(data);
+          })
+          .catch(err => {
+              container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
+          });
   }
 
   window.tutupKontak = function() {
       document.getElementById('modalKontak').style.display = 'none';
   }
 
+  // 2. Fungsi Gambar List Kontak
   function renderKontak(data) {
-            // ID Sesuai punya lo
-            const container = document.getElementById('list-kontak-container');
-            container.innerHTML = '';
+      const container = document.getElementById('list-kontak-container');
+      container.innerHTML = '';
 
-            const KOLOM = {
-                NAMA: 'Nama',
-                NOMOR: 'Nomor',
-                KATEGORI: 'Kategori'
-            };
+      const KOLOM = {
+          NAMA: 'Nama',
+          NOMOR: 'Nomor',
+          KATEGORI: 'Kategori'
+      };
 
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
-                return;
-            }
+      if (!data || data.length === 0) {
+          container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
+          return;
+      }
 
-            // 1. Grouping Data (Biar Rapi per Kategori)
-            const grouped = {};
-            data.forEach(item => {
-                const kat = item[KOLOM.KATEGORI] || 'Nomor Penting';
-                if (!grouped[kat]) grouped[kat] = [];
-                grouped[kat].push(item);
-            });
+      // Grouping Data
+      const grouped = {};
+      data.forEach(item => {
+          const kat = item[KOLOM.KATEGORI] || 'Nomor Penting';
+          if (!grouped[kat]) grouped[kat] = [];
+          grouped[kat].push(item);
+      });
 
-            // 2. Render Tampilan
-            Object.keys(grouped).forEach(kat => {
-                // HEADER ANTI-MANJAT (Sticky)
-                const sectionHtml = `
-                    <div class="category-header sticky-top bg-white shadow-sm" style="top:0; z-index:100; border-bottom:1px solid #e2e8f0; padding: 10px 15px; margin-bottom: 5px;">
-                        <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1rem;">
-                            <i class="fas fa-shield-alt me-2"></i>${kat}
-                        </h6>
-                    </div>
-                    
-                    <div class="list-group list-group-flush mb-4">
-                        ${grouped[kat].map(item => {
-                            // Format Nomor (Biar aman dari angka/huruf aneh)
-                            let rawNum = item[KOLOM.NOMOR] || '';
-                            let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
-                            if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1); // Ubah 08 jadi 628
+      // Render Tampilan
+      Object.keys(grouped).forEach(kat => {
+          const sectionHtml = `
+              <div class="category-header sticky-top bg-white shadow-sm" style="top:0; z-index:100; border-bottom:1px solid #e2e8f0; padding: 10px 15px; margin-bottom: 5px;">
+                  <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1rem;">
+                      <i class="fas fa-shield-alt me-2"></i>${kat}
+                  </h6>
+              </div>
+              <div class="list-group list-group-flush mb-4">
+                  ${grouped[kat].map(item => {
+                      let rawNum = item[KOLOM.NOMOR] || '';
+                      let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
+                      
+                      let isEmergency = cleanNum.length <= 4;
+                      let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
+                      let icon = isEmergency ? 'fa-phone' : 'fa-whatsapp';
+                      let btnColor = isEmergency ? '#ef4444' : '#22c55e';
+                      let btnText = isEmergency ? 'Panggil' : 'Chat WA';
 
-                            // Cek Darurat (Pendek) atau WA (Panjang)
-                            let isEmergency = cleanNum.length <= 4;
-                            let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
-                            let icon = isEmergency ? 'fa-phone' : 'fa-whatsapp'; // Pake icon fontawesome standar
-                            let btnColor = isEmergency ? '#ef4444' : '#22c55e'; // Merah / Hijau
-                            let btnText = isEmergency ? 'Panggil' : 'Chat WA';
-
-                            return `
-                            <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9;">
-                                <div>
-                                    <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${item[KOLOM.NAMA] || 'Tanpa Nama'}</div>
-                                    <div style="font-size:0.8rem; color:#64748b;">${rawNum}</div>
-                                </div>
-                                <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:6px 15px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px;">
-                                    <i class="fab ${icon}"></i> ${btnText}
-                                </a>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', sectionHtml);
-            });
-        }
+                      return `
+                      <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; background:white;">
+                          <div>
+                              <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${item[KOLOM.NAMA] || 'Tanpa Nama'}</div>
+                              <div style="font-size:0.8rem; color:#64748b;">${rawNum}</div>
+                          </div>
+                          <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:6px 15px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px;">
+                              <i class="fab ${icon}"></i> ${btnText}
+                          </a>
+                      </div>`;
+                  }).join('')}
+              </div>`;
+          container.insertAdjacentHTML('beforeend', sectionHtml);
+      });
+  }
 </script>
 </body>
 </html>
+
 
 
 
