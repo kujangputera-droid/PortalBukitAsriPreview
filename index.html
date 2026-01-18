@@ -86,11 +86,9 @@
 <body>
 
     <div class="running-text-wrap">
-    <marquee id="teks-berjalan" scrollamount="5">
-      
-    </marquee>
-        
-</div>
+        <marquee scrollamount="5">
+            📢 Selamat Datang di WargaNet! Dukung UMKM tetangga sendiri. • Info Warga terbaru bisa dicek di menu Info.
+        </marquee>
     </div>
 
     <div class="sticky-header">
@@ -386,23 +384,5 @@
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
   <span>📝 Input Info</span>
 </a>
-    <script>
-  // SCRIPT AMBIL RUNNING TEXT OTOMATIS
-  // Ganti URL_APPS_SCRIPT_KAMU dengan link script kamu yang asli
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec'; 
-
-  fetch(scriptURL + '?action=running')
-    .then(response => response.json())
-    .then(data => {
-      // Masukkan teks dari sheet ke marquee
-      if(data.text && data.text !== "") {
-        document.getElementById('teks-berjalan').innerText = data.text;
-      } else {
-        document.getElementById('teks-berjalan').innerText = "Selamat Datang di Portal Warga";
-      }
-    })
-    .catch(error => console.error('Gagal ambil running text:', error));
-</script>
 </body>
 </html>
-
