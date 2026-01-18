@@ -584,62 +584,58 @@
       const container = document.getElementById('list-kontak-container');
       container.innerHTML = '';
 
-      const KOLOM = {
-          NAMA: 'Nama',
-          NOMOR: 'Nomor',
-          KATEGORI: 'Kategori'
-      };
-
       if (!data || data.length === 0) {
           container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
           return;
       }
 
-      // Grouping Data
-      const grouped = {};
-      data.forEach(item => {
-          const kat = item[KOLOM.KATEGORI] || 'Nomor Penting';
-          if (!grouped[kat]) grouped[kat] = [];
-          grouped[kat].push(item);
-      });
+      // 1. HEADER TUNGGAL + TOMBOL SILANG (Sticky & Fix)
+      const headerHtml = `
+          <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+              <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
+                  <i class="fas fa-phone-square-alt me-2"></i>Nomor Penting
+              </h6>
+              <button onclick="tutupKontak()" style="border: none; background: #f1f5f9; color: #64748b; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 0;">
+                  &times;
+              </button>
+          </div>
+      `;
 
-      // Render Tampilan
-      Object.keys(grouped).forEach(kat => {
-          const sectionHtml = `
-              <div class="category-header sticky-top bg-white shadow-sm" style="top:0; z-index:100; border-bottom:1px solid #e2e8f0; padding: 10px 15px; margin-bottom: 5px;">
-                  <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1rem;">
-                      <i class="fas fa-shield-alt me-2"></i>${kat}
-                  </h6>
-              </div>
-              <div class="list-group list-group-flush mb-4">
-                  ${grouped[kat].map(item => {
-                      let rawNum = item[KOLOM.NOMOR] || '';
-                      let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
-                      
-                      let isEmergency = cleanNum.length <= 4;
-                      let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
-                      let icon = isEmergency ? 'fa-phone' : 'fa-whatsapp';
-                      let btnColor = isEmergency ? '#ef4444' : '#22c55e';
-                      let btnText = isEmergency ? 'Panggil' : 'Chat WA';
+      // 2. LIST NOMOR (Tanpa grouping kategori lagi biar ga manjat)
+      const listHtml = `
+          <div class="list-group list-group-flush">
+              ${data.map(item => {
+                  let nama = item['Nama'] || 'Tanpa Nama';
+                  let rawNum = item['Nomor'] || '';
+                  let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
+                  if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
 
-                      return `
-                      <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 12px 15px; border-bottom: 1px solid #f1f5f9; background:white;">
-                          <div>
-                              <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${item[KOLOM.NAMA] || 'Tanpa Nama'}</div>
-                              <div style="font-size:0.8rem; color:#64748b;">${rawNum}</div>
-                          </div>
-                          <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:6px 15px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px;">
-                              <i class="fab ${icon}"></i> ${btnText}
-                          </a>
-                      </div>`;
-                  }).join('')}
-              </div>`;
-          container.insertAdjacentHTML('beforeend', sectionHtml);
-      });
+                  let isEmergency = cleanNum.length <= 4;
+                  let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
+                  let icon = isEmergency ? 'fa-phone' : 'fab fa-whatsapp';
+                  let btnColor = isEmergency ? '#ef4444' : '#22c55e';
+                  let btnText = isEmergency ? 'Panggil' : 'WA';
+
+                  return `
+                  <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 15px; border-bottom: 1px solid #f1f5f9; background:white;">
+                      <div style="flex: 1; padding-right: 10px;">
+                          <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${nama}</div>
+                          <div style="font-size:0.8rem; color:#64748b; margin-top: 2px;">${rawNum}</div>
+                      </div>
+                      <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px; white-space: nowrap;">
+                          <i class="fas ${icon}"></i> ${btnText}
+                      </a>
+                  </div>`;
+              }).join('')}
+          </div>
+      `;
+
+      container.innerHTML = headerHtml + listHtml;
   }
 </script>
 </body>
 </html>
+
 
 
 
