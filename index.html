@@ -549,26 +549,17 @@
   // ============================================================
   // 4️⃣ BAGIAN KONTAK (MODAL POPUP)
   // ============================================================
-  // let cacheKontak = null;
-
-  // function preloadKontak() {
-      fetch(scriptURL + '?action=kontak')
-      .then(res => res.json())
-      .then(data => cacheKontak = data);
-  }
-  // 1. Fungsi Buka Modal & Ambil Data Segar (Tanpa Cache)
-window.bukaKontak = function() { 
+  // --- 1. Fungsi Buka Modal & Ambil Data ---
+  window.bukaKontak = function() { 
       const container = document.getElementById('list-kontak-container');
       document.getElementById('modalKontak').style.display = 'flex';
       
-      // Reset tampilan ke loading
       container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
       
-      // Ambil data langsung dari Google Sheet
       fetch(`${scriptURL}?action=kontak&t=${new Date().getTime()}`)
           .then(res => res.json())
           .then(data => {
-              renderKontak(data); // Panggil fungsi gambar list
+              renderKontak(data);
           })
           .catch(err => {
               console.error(err);
@@ -580,7 +571,7 @@ window.bukaKontak = function() {
       document.getElementById('modalKontak').style.display = 'none';
   }
 
-  // 2. Fungsi Gambar List Kontak
+  // --- 2. Fungsi Gambar List (Tanpa Grouping/Tanpa Header Ganda) ---
   function renderKontak(data) {
       const container = document.getElementById('list-kontak-container');
       container.innerHTML = '';
@@ -590,7 +581,7 @@ window.bukaKontak = function() {
           return;
       }
 
-      // --- 1. HEADER TUNGGAL (FIXED & STICKY) ---
+      // HEADER TUNGGAL & TOMBOL SILANG
       const headerHtml = `
           <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
               <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
@@ -602,11 +593,10 @@ window.bukaKontak = function() {
           </div>
       `;
 
-      // --- 2. LIST NOMOR (SAYA PAKSA TANPA GROUPING) ---
+      // LIST NOMOR
       const listHtml = `
           <div class="list-group list-group-flush">
               ${data.map(item => {
-                  // Pastikan nama kolom sesuai JSON: 'Nama' dan 'Nomor'
                   let nama = item['Nama'] || 'Tanpa Nama';
                   let rawNum = item['Nomor'] || '';
                   let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
@@ -637,5 +627,6 @@ window.bukaKontak = function() {
 </script>
 </body>
 </html>
+
 
 
