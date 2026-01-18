@@ -217,13 +217,18 @@
             PAKET: 'Paket',    
             LANDING_PAGE: 'Link Landing Page'
         };
-        const _INFO = {
-            TANGGAL: 'Timestamp', // Sesuaikan dengan header A (Timestamp / Tanggal)
-            DARI: 'Dari',         // Kolom C (Sumber RT/RW)
-            JUDUL: 'Judul Info',  // Kolom D
-            KATEGORI: 'Kategori', // Kolom E
-            DESKRIPSI: 'Deskripsi', // Kolom F
-            FOTO: 'Link Foto'     // Kolom G
+        const KOLOM_INFO = {
+            TANGGAL: 'Timestamp',
+            DARI: 'Dari',
+            
+            // 👇 INI YANG BIKIN ERROR KEMARIN. GANTI JADI 'Judul' AJA.
+            JUDUL: 'Judul',    
+            
+            KATEGORI: 'Kategori',
+            DESKRIPSI: 'Deskripsi',
+            
+            // 👇 Pastikan ini sama persis 'Link Foto'
+            FOTO: 'Link Foto' 
         };
 
         let allData = []; // Data Jualan
@@ -592,6 +597,7 @@
 </script>
 </body>
 </html>
+
 
 
 
