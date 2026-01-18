@@ -383,10 +383,71 @@
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
     </script>
+    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
+  📞 Nomor Penting
+</button>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
   <span>📝 Input Info</span>
 </a>
+    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 12px; position: relative; max-height: 80vh; overflow-y: auto;">
+    
+    <span onclick="tutupKontak()" style="position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; font-weight: bold;">&times;</span>
+    
+    <h3 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">☎️ Nomor Darurat</h3>
+    
+    <div id="list-kontak-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+        Loading data...
+    </div>
+  </div>
+</div>
     <script>
+        // FUNGSI BUKA TUTUP MODAL
+function bukaKontak() {
+    document.getElementById('modalKontak').style.display = 'flex';
+    ambilDataKontak(); // Ambil data saat dibuka
+}
+
+function tutupKontak() {
+    document.getElementById('modalKontak').style.display = 'none';
+}
+
+// FUNGSI AMBIL DATA DARI SHEET
+function ambilDataKontak() {
+    const container = document.getElementById('list-kontak-container');
+    container.innerHTML = '<p style="text-align:center;">⏳ Mengambil data...</p>';
+
+    fetch(scriptURL + '?action=kontak') // Panggil action kontak
+    .then(response => response.json())
+    .then(data => {
+        container.innerHTML = ''; // Kosongkan loading
+        
+        if (data.length === 0) {
+            container.innerHTML = '<p>Belum ada data kontak.</p>';
+            return;
+        }
+
+        data.forEach(item => {
+            // Desain Kartu Kontak Simple
+            const card = `
+                <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: bold; font-family: sans-serif; color: #334155;">${item.nama}</div>
+                        <div style="font-size: 14px; color: #64748b;">${item.nomor}</div>
+                    </div>
+                    <a href="tel:${item.nomor}" style="background: #22c55e; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 14px; font-weight: bold;">
+                        Panggil
+                    </a>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        container.innerHTML = '<p style="color:red;">Gagal memuat data.</p>';
+    });
+}
   // SCRIPT AMBIL RUNNING TEXT OTOMATIS
   // Ganti URL_APPS_SCRIPT_KAMU dengan link script kamu yang asli
   const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec'; 
@@ -405,5 +466,6 @@
 </script>
 </body>
 </html>
+
 
 
