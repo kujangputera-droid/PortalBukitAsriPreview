@@ -170,20 +170,20 @@
         const KOLOM = {
             NAMA_USAHA: 'Nama Usaha / Brand',
             KATEGORI: 'Kategori',
-            // COPY JUDUL KOLOM H DARI EXCEL, PASTE DI DALAM TANDA KUTIP DI BAWAH INI 👇
             FOTO: 'Foto Produk (berikan yang terbaik, Foto jangan blur)', 
             WA: 'No WhatsApp',
             RT: 'RT',
-            ALAMAT: 'Alamat',
             
-            // 👇 INI YANG BIKIN UNDEFINED. GANTI JADI 'Nama' (Sesuai kolom B Excel)
-            OWNER: 'Nama',  
+            // Alamat sudah benar 'Alamat', pastikan huruf A besar
+            ALAMAT: 'Alamat', 
+            
+            // 👇 PERHATIKAN INI! SAYA TAMBAH SPASI DI BELAKANGNYA
+            OWNER: 'Nama ',  
             
             STATUS: 'Status', 
             PAKET: 'Paket',    
             LANDING_PAGE: 'Link Landing Page'
         };
-
         const KOLOM_INFO = {
             TANGGAL: 'Timestamp', // Sesuaikan dengan header A (Timestamp / Tanggal)
             DARI: 'Dari',         // Kolom C (Sumber RT/RW)
@@ -546,6 +546,7 @@
 </script>
 </body>
 </html>
+
 
 
 
