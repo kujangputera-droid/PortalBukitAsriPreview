@@ -266,82 +266,75 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // --- 1. CONFIG ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("Menghubungi database...");
-            
-            fetch(scriptURL)
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Data JSON masuk:", data);
-                    const container = document.getElementById('productContainer') || document.getElementById('content-container');
-                    if(!container) return;
-                    
-                    container.innerHTML = ''; // Bersihkan loading
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("SOP Jalur Paksa dimulai...");
+        
+        fetch(scriptURL)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Data JSON masuk:", data);
+                
+                // 1. CARI WADAH (ID apa saja yang mungkin kamu pakai)
+                let container = document.getElementById('productContainer') || 
+                                document.getElementById('content-container') || 
+                                document.getElementById('main-content');
 
-                    // Filter data agar baris yang kosong tidak ikut muncul
-                    const dataValid = data.filter(item => item["Nama Usaha / Brand"] && item["Nama Usaha / Brand"] !== "");
+                // 2. JARING PENGAMAN: Kalau ID gak ketemu, paksa bikin wadah di paling atas body
+                if (!container) {
+                    console.warn("ID wadah tidak ketemu, membuat wadah darurat...");
+                    container = document.createElement('div');
+                    container.id = "darurat-container";
+                    container.style = "padding:20px; background:#f0f9ff; z-index:9999; position:relative;";
+                    document.body.prepend(container);
+                }
 
-                    if (dataValid.length === 0) {
-                        container.innerHTML = '<p style="text-align:center; padding:20px;">Belum ada data jualan yang aktif.</p>';
-                        return;
-                    }
+                container.innerHTML = ""; // Hapus tulisan loading
 
-                    dataValid.forEach(item => {
-                        // Sesuaikan dengan nama kolom asli (termasuk spasi tersembunyi)
-                        const namaToko = item["Nama Usaha / Brand"];
-                        const namaWarga = item["Nama "] || item["Nama"] || "Warga";
-                        const wa = item["No WhatsApp"];
-                        const foto = item["Link Foto Bersih"];
-                        const alamat = item["Alamat"] || "-";
-                        const kategori = item["Kategori"] || "Umum";
+                // 3. FILTER DATA KOSONG
+                const dataValid = data.filter(item => item["Nama Usaha / Brand"] && item["Nama Usaha / Brand"].trim() !== "");
 
-                        container.innerHTML += `
-                            <div style="display:flex; background:white; padding:12px; margin-bottom:12px; border-radius:15px; border:1px solid #eee; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-                                <div style="width:80px; height:80px; background:#f0f4f8; border-radius:10px; overflow:hidden; margin-right:15px; flex-shrink:0;">
-                                    <img src="${foto}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='https://placehold.co/80?text=No+Image'">
-                                </div>
-                                <div style="flex-grow:1;">
-                                    <span style="font-size:9px; color:#0284c7; font-weight:bold; text-transform:uppercase;">${kategori}</span>
-                                    <h6 style="margin:2px 0; font-size:15px; font-weight:bold; color:#1e293b;">${namaToko}</h6>
-                                    <p style="margin:0; font-size:11px; color:#64748b;">👤 ${namaWarga} | 📍 ${alamat}</p>
-                                    <div style="margin-top:8px;">
-                                        <button onclick="window.open('https://wa.me/${formatWA(wa)}')" style="background:#22c55e; color:white; border:none; padding:5px 12px; border-radius:8px; font-size:11px; font-weight:bold; cursor:pointer;">
-                                            Hubungi Penjual
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>`;
-                    });
-
-                    // Matikan loader
-                    const loader = document.getElementById('skeletonLoader');
-                    if(loader) loader.classList.add('d-none');
-                })
-                .catch(err => {
-                    console.error("Error:", err);
-                    document.getElementById('productContainer').innerHTML = "Gagal memuat data.";
+                // 4. RENDER DATA
+                dataValid.forEach(item => {
+                    const card = `
+                        <div style="display:flex; background:white; padding:15px; margin-bottom:12px; border-radius:12px; border:1px solid #ddd; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                            <img src="${item["Link Foto Bersih"]}" style="width:70px; height:70px; object-fit:cover; border-radius:8px; margin-right:15px;" onerror="this.src='https://placehold.co/70x70?text=Foto'">
+                            <div style="flex-grow:1;">
+                                <h6 style="margin:0; font-weight:bold; color:#333;">${item["Nama Usaha / Brand"]}</h6>
+                                <p style="margin:0; font-size:12px; color:#666;">👤 ${item["Nama "] || "Warga"}</p>
+                                <button onclick="window.open('https://wa.me/${formatWA(item["No WhatsApp"])}')" style="margin-top:8px; background:#22c55e; color:white; border:none; padding:5px 12px; border-radius:8px; font-size:11px; cursor:pointer;">Chat WA</button>
+                            </div>
+                        </div>`;
+                    container.innerHTML += card;
                 });
-        });
 
-        function formatWA(n) {
-            if(!n) return '';
-            let num = n.toString().replace(/[^0-9]/g, '');
-            return num.startsWith('0') ? '62' + num.substring(1) : num;
-        }
+                // Matikan loading spinner/skeleton
+                const loader = document.getElementById('skeletonLoader') || document.querySelector('.spinner-border');
+                if(loader) loader.style.display = 'none';
 
-        // Fungsi dummy agar tidak error saat tombol navigasi diklik
-        window.switchTab = (t) => {
-            if(t === 'info') alert('Fitur Info Warga sedang disiapkan!');
-        };
-        window.bukaKontak = () => alert('Fitur Nomor Penting sedang disiapkan!');
-    </script>
+            })
+            .catch(err => {
+                console.error("Gagal tarik data:", err);
+            });
+    });
+
+    function formatWA(n) {
+        if(!n) return '';
+        let num = n.toString().replace(/[^0-9]/g, '');
+        return num.startsWith('0') ? '62' + num.substring(1) : num;
+    }
+
+    // Fungsi dummy biar navigasi gak error
+    window.switchTab = (t) => console.log("Tab aktif:", t);
+    window.filterToko = () => console.log("Search...");
+    window.bukaKontak = () => alert("Sabar Bro, data jualan sedang dimunculkan.");
+</script>
 </body>
 </html>
     
+
 
 
 
