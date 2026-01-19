@@ -623,38 +623,36 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN KHUSUS JUALAN (VERSI FIX TAB) ---
+        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX SESUAI KODINGAN KAMU) ---
 function filterToko() {
-    // 1. Ambil kata kunci
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase().trim();
     
-    // 2. Kunci Target ke productContainer (Hanya area Jualan)
+    // Pastikan ID Container-nya benar
     const container = document.getElementById('productContainer');
     if (!container) return;
 
-    // 3. Ambil semua kartu jualan yang ada di dalamnya
-    const cards = container.querySelectorAll('.card');
+    // AMBIL SEMUA KARTU DENGAN CLASS 'card-product'
+    const cards = container.getElementsByClassName('card-product');
 
-    cards.forEach(card => {
-        // Ambil semua teks dalam kartu (Produk, Toko, Deskripsi)
-        const textValue = (card.textContent || card.innerText).toLowerCase();
+    for (let i = 0; i < cards.length; i++) {
+        // Ambil semua teks di dalam kartu
+        const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
         
-        // Cari pembungkus kolomnya (Bootstrap col) agar layout tidak ompong
-        const colWrapper = card.closest('[class*="col"]') || card;
-
-        // 4. Logika Sembunyi/Tampilkan
-        if (textValue.includes(filter)) {
-            // Kita pakai flex karena biasanya Bootstrap card dalam row itu flex/block
-            colWrapper.style.setProperty('display', '', 'important');
+        // Logika Sembunyi/Tampilkan
+        if (textValue.indexOf(filter) > -1) {
+            // Tampilkan (pakai flex/block tergantung CSS card-product kamu)
+            cards[i].style.setProperty('display', '', 'important');
         } else {
-            colWrapper.style.setProperty('display', 'none', 'important');
+            // Sembunyikan
+            cards[i].style.setProperty('display', 'none', 'important');
         }
-    });
+    }
 }
 </script>
 </body>
 </html>
+
 
 
 
