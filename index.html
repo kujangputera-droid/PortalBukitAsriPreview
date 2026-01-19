@@ -270,11 +270,10 @@
         // --- 1. KONFIGURASI ---
         const WA_ADMIN = '6282260605301';
         const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
-        // Pastikan scriptURL ini link .exec dari Apps Script kamu
         const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
-        let allData = []; 
-        let infoData = []; 
+        let allData = [];
+        let infoData = [];
         let currentTab = 'home';
 
         // --- 2. LOGIKA STARTUP ---
@@ -284,142 +283,133 @@
             // Set Youtube & Admin
             const yt = document.getElementById('youtubeFrame');
             if(yt) yt.innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
-            const btnA = document.getElementById('btnAdmin');
-            if(btnA) btnA.href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin...`;
-
-            // Ambil Data Jualan (Default)
-            loadJualan();
-            loadRunningText();
-            preloadKontak();
-        });
-
-        // --- 3. AMBIL DATA JUALAN ---
-        function loadJualan() {
+            
+            // Ambil Data Jualan
             fetch(scriptURL)
                 .then(res => res.json())
                 .then(data => {
                     allData = data;
+                    console.log("Data diterima:", allData);
                     const loader = document.getElementById('skeletonLoader');
                     if(loader) loader.classList.add('d-none');
                     renderCards(allData);
-                }).catch(e => console.error("Gagal load jualan:", e));
-        }
-
-        // --- 4. RENDER KARTU JUALAN ---
-        
-        function renderCards(data) {
-    const container = document.getElementById('productContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = '<p style="text-align:center; padding:20px;">Data kosong atau tidak terbaca.</p>';
-        return;
-    }
-
-    data.forEach(item => {
-        // PENCARIAN CERDAS: Cari nama usaha di berbagai kemungkinan nama kolom
-        const namaToko = item['Nama Usaha / Brand'] || item['Nama Usaha'] || item['Judul'] || Object.values(item)[5] || 'Tanpa Nama';
-        const namaWarga = item['Nama'] || item['Pemilik'] || Object.values(item)[1] || 'Warga';
-        const alamatWarga = item['Alamat'] || item['Lokasi'] || Object.values(item)[3] || '-';
-        const noWA = item['No WhatsApp'] || item['WhatsApp'] || Object.values(item)[2] || '';
-
-        const card = document.createElement('div');
-        card.className = 'card-product';
-        card.style = "background:white; border-radius:10px; margin-bottom:15px; border:1px solid #eee; padding:15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
-        
-        card.innerHTML = `
-            <div class="card-body">
-                <h3 style="margin:0 0 5px 0; font-size:1.1rem; color:#0284c7;">${namaToko}</h3>
-                <p style="margin:0; font-size:0.85rem; color:#475569;">
-                    👤 <b>${namaWarga}</b><br>
-                    📍 ${alamatWarga}
-                </p>
-                <div style="margin-top:10px; text-align:right;">
-                    <button onclick="window.open('https://wa.me/${formatWA(noWA)}', '_blank')" 
-                            style="background:#22c55e; color:white; border:none; padding:6px 15px; border-radius:20px; font-size:0.8rem; cursor:pointer; font-weight:bold;">
-                        <i class="fab fa-whatsapp"></i> Chat WA
-                    </button>
-                </div>
-            </div>`;
-        container.appendChild(card);
-    });
-}
-
-// Tambahkan fungsi formatWA ini juga di bawahnya biar gak error
-function formatWA(n) {
-    if(!n) return '';
-    let num = n.toString().replace(/[^0-9]/g, '');
-    return num.startsWith('0') ? '62' + num.substring(1) : num;
-}
-
-        // --- 5. BAGIAN INFO WARGA ---
-        function loadInfoWarga() {
-            const container = document.getElementById('infoContainer'); 
-            if(!container) return; 
-            container.innerHTML = '<div style="text-align:center; padding:20px;">⏳ Memuat info...</div>';
-
-            fetch(scriptURL + '?type=info')
-                .then(res => res.json())
-                .then(data => {
-                    infoData = data;
-                    container.innerHTML = '';
-                    data.forEach(item => {
-                        container.innerHTML += `<div class="card-info" style="padding:15px; border-bottom:1px solid #eee;">
-                            <span class="badge bg-info">${item.kategori || 'Info'}</span>
-                            <h5>${item.judul}</h5>
-                            <p>${item.deskripsi}</p>
-                        </div>`;
-                    });
+                })
+                .catch(e => {
+                    console.error("Gagal load data:", e);
+                    document.getElementById('productContainer').innerHTML = "Gagal terhubung ke database.";
                 });
+
+            loadRunningText();
+        });
+
+        // --- 3. RENDER KARTU JUALAN (SESUAI JSON KAMU) ---
+        function renderCards(data) {
+            const container = document.getElementById('productContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:20px;">Belum ada jualan warga.</p>';
+                return;
+            }
+
+            data.forEach(item => {
+                // Mapping kolom sesuai JSON asli kamu
+                const namaToko = item["Nama Usaha / Brand"] || "Tanpa Nama";
+                const namaWarga = item["Nama"] || "Warga";
+                const alamatWarga = item["Alamat"] || "-";
+                const kategori = item["Kategori"] || "Umum";
+                const rt = item["RT"] || "-";
+                const wa = item["No WhatsApp"] || "";
+                
+                // Ambil Foto dari 'Link Foto Bersih' (yang sudah jadi thumbnail)
+                const fotoURL = item["Link Foto Bersih"] || "";
+
+                const card = document.createElement('div');
+                card.className = 'card-product';
+                card.style = "display:flex; background:white; border-radius:12px; overflow:hidden; margin-bottom:15px; border:1px solid #eee; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:pointer;";
+                
+                card.innerHTML = `
+                    <div style="width:100px; height:100px; flex-shrink:0;">
+                        ${fotoURL ? `<img src="${fotoURL}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No Img</div>`}
+                    </div>
+                    <div style="padding:10px; flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+                        <div>
+                            <span style="font-size:10px; background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-weight:bold;">${rt} • ${kategori}</span>
+                            <h3 style="font-size:14px; margin:4px 0; color:#333; font-weight:bold;">${namaToko}</h3>
+                            <p style="font-size:11px; color:#666; margin:0;">👤 ${namaWarga} | 📍 ${alamatWarga}</p>
+                        </div>
+                        <div style="text-align:right;">
+                            <button onclick="window.open('https://wa.me/${formatWA(wa)}', '_blank')" style="background:#22c55e; color:white; border:none; padding:4px 12px; border-radius:8px; font-size:11px; font-weight:bold;">Chat</button>
+                        </div>
+                    </div>`;
+                container.appendChild(card);
+            });
         }
 
-        // --- 6. NAVIGASI TAB ---
+        // --- 4. FORMAT WHATSAPP ---
+        function formatWA(n) {
+            if(!n) return '';
+            let num = n.toString().replace(/[^0-9]/g, '');
+            return num.startsWith('0') ? '62' + num.substring(1) : num;
+        }
+
+        // --- 5. NAVIGASI & SEARCH (SIMPEL) ---
         window.switchTab = function(tab) {
             currentTab = tab;
             document.getElementById('navHome').classList.toggle('active', tab === 'home');
             document.getElementById('navInfo').classList.toggle('active', tab === 'info');
             document.getElementById('productContainer').classList.toggle('d-none', tab !== 'home');
             document.getElementById('infoContainer').classList.toggle('d-none', tab !== 'info');
-
-            if(tab === 'info' && infoData.length === 0) loadInfoWarga();
+            // Jika butuh tab info, jalankan fetch khusus info di sini
         }
 
-        // --- 7. KONTAK & RUNNING ---
+        window.filterToko = function() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.getElementsByClassName('card-product');
+            for (let card of cards) {
+                card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            }
+        }
+
+        // --- 6. KONTAK & RUNNING ---
         window.bukaKontak = function() {
             document.getElementById('modalKontak').style.display = 'flex';
             const container = document.getElementById('list-kontak-container');
-            container.innerHTML = '⏳ Memuat kontak...';
+            container.innerHTML = '<div style="padding:20px; text-align:center;">⏳ Memuat Kontak...</div>';
             fetch(scriptURL + '?action=kontak')
                 .then(res => res.json())
                 .then(data => {
-                    container.innerHTML = '<div class="list-group">' + data.map(item => `
-                        <div class="list-group-item d-flex justify-content-between">
-                            <span>${item.Nama}</span>
-                            <a href="https://wa.me/${item.Nomor}" class="btn btn-sm btn-success">WA</a>
-                        </div>`).join('') + '</div>';
+                    container.innerHTML = '<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>Nomor Penting</b><button onclick="tutupKontak()" style="border:none; background:none;">&times;</button></div>';
+                    data.forEach(item => {
+                        container.innerHTML += `<div style="padding:15px; border-bottom:1px solid #f9f9f9; display:flex; justify-content:space-between; align-items:center;">
+                            <span><b>${item.Nama}</b><br><small>${item.Nomor}</small></span>
+                            <a href="https://wa.me/${formatWA(item.Nomor)}" style="background:#22c55e; color:white; padding:5px 12px; border-radius:20px; text-decoration:none; font-size:12px;">Chat</a>
+                        </div>`;
+                    });
                 });
         }
         window.tutupKontak = () => document.getElementById('modalKontak').style.display = 'none';
         function loadRunningText() { fetch(scriptURL + '?action=running').then(res => res.json()).then(data => { if(data.text) document.getElementById('teks-berjalan').innerText = data.text; }); }
         function preloadKontak() { console.log("Kontak Ready"); }
-
-        // --- 8. SEARCH ---
-        window.filterToko = function() {
-            const filter = document.getElementById('searchInput').value.toLowerCase();
-            const container = document.getElementById(currentTab === 'home' ? 'productContainer' : 'infoContainer');
-            const cards = container.children;
-            for (let card of cards) {
-                card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
-            }
-        }
     </script>
+    
     <style>
-        .card-product, .card-info { background: white; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; padding: 10px; }
-        .btn-wa-mini { background: #22c55e; color: white; border: none; padding: 5px 15px; border-radius: 5px; }
+        .btn-floating { position: fixed; right: 20px; z-index: 1000; padding: 12px 20px; border-radius: 50px; border: 2px solid white; color: white; font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 14px; }
+        .btn-kontak { bottom: 85px; background: #0284c7; }
+        .btn-input { bottom: 25px; background: #dc2626; }
     </style>
+
+    <button onclick="bukaKontak()" class="btn-floating btn-kontak">📞 Nomor Penting</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" class="btn-floating btn-input">📝 Input Jualan</a>
+
+    <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; border-radius:12px; max-height:85vh; overflow-y:auto;" id="list-kontak-container"></div>
+    </div>
 </body>
 </html>
+    
+
 
 
 
