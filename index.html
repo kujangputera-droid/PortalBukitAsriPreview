@@ -109,7 +109,19 @@
         .carousel-item { height: 350px; text-align: center; } 
         .carousel-item img { max-width: 100%; max-height: 100%; width: auto; height: 100%; object-fit: contain; margin: auto; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1020; border-top-left-radius: 15px; border-top-right-radius: 15px; }
+        .bottom-nav {
+    position: fixed;   /* Ini kuncinya biar dia nempel, nggak ikut kedorong */
+    bottom: 0;         /* Nempel di paling bawah layar */
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 9999;     /* Biar selalu di atas elemen kartu jualan */
+}
         .nav-item { text-align: center; color: #94A3B8; text-decoration: none; font-size: 0.7rem; cursor: pointer; }
         .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
         .nav-item.active { color: var(--primary); }
@@ -668,6 +680,7 @@ function clearInput() {
 </script>
 </body>
 </html>
+
 
 
 
