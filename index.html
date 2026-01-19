@@ -639,41 +639,42 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN PINTAR (SUPPORT TAB JUALAN & INFO) ---
+        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX DUA TAB) ---
 function filterToko() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase().trim();
     const clearBtn = document.getElementById('clearSearch');
     const emptyState = document.getElementById('emptyState');
     
-    // 1. Munculkan/Sembunyikan tombol silang (X)
+    // 1. Munculkan/Sembunyikan tombol silang
     if(clearBtn) clearBtn.style.display = input.value.length > 0 ? "block" : "none";
 
-    // 2. DETEKSI TAB: Cek kita lagi di tab mana sekarang
-    // Kita liat navHome punya class 'active' atau nggak
+    // 2. Deteksi Tab Aktif
     const isHome = document.getElementById('navHome').classList.contains('active');
     const targetId = isHome ? 'productContainer' : 'infoContainer';
-    
     const container = document.getElementById(targetId);
+    
     if (!container) return;
 
-    // 3. AMBIL SEMUA ANAK (Kartu) di container yang aktif
-    const cards = container.children;
+    // 3. Ambil kartu berdasarkan tab-nya
+    // Kalau di Home cari 'card-product', kalau di Info cari 'card-info'
+    const cardClass = isHome ? 'card-product' : 'card-info';
+    const cards = container.getElementsByClassName(cardClass);
+
     let hasMatch = false;
 
     for (let i = 0; i < cards.length; i++) {
-        // Cek teks di dalam kartu
         const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
         
         if (textValue.indexOf(filter) > -1) {
             cards[i].style.setProperty('display', '', 'important');
-            hasMatch = true; // Ada yang cocok!
+            hasMatch = true;
         } else {
             cards[i].style.setProperty('display', 'none', 'important');
         }
     }
 
-    // 4. Munculkan pesan "Data Tidak Ditemukan" kalau zonk
+    // 4. Tampilkan pesan "Data tidak ditemukan"
     if (hasMatch || filter === "") {
         emptyState.classList.add('d-none');
     } else {
@@ -683,6 +684,7 @@ function filterToko() {
 </script>
 </body>
 </html>
+
 
 
 
