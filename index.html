@@ -3,116 +3,454 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portal Bukit Asri</title>
+    <title>WargaNet - Portal Bukit Asri</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary: #2563EB; --wa: #25D366; --bg: #F8FAFC; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); padding-bottom: 110px; }
+        :root { --primary: #2563EB; --bg-body: #F8FAFC; --card-bg: #FFFFFF; --wa-color: #25D366; --gold: #FFD700; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg-body); padding-bottom: 90px; }
         
-        .sticky-header { position: sticky; top: 0; z-index: 1000; background: #fff; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
-        .search-wrap { position: relative; display: flex; align-items: center; }
-        .search-input { border-radius: 50px; border: 1px solid #E2E8F0; background: #F1F5F9; padding: 10px 45px; width: 100%; font-size: 0.9rem; outline: none; }
-        .search-icon { position: absolute; left: 18px; color: #94A3B8; }
-        .clear-icon { position: absolute; right: 18px; color: #94A3B8; cursor: pointer; display: none; }
+        /* HEADER */
+        .sticky-header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding-top: 10px; padding-bottom: 10px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .running-text-wrap { background: #EFF6FF; color: var(--primary); font-size: 0.8rem; padding: 6px 0; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #DBEAFE; }
+        .search-input { border-radius: 50px; border: 1px solid #E2E8F0; background: #F1F5F9; padding: 12px 40px 12px 45px !important; width: 100%; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
+        .clear-icon { font-size: 1.1rem; transition: all 0.2s ease; opacity: 0.6; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #cbd5e1; display: none; }
+        .clear-icon:hover { color: #ef4444 !important; opacity: 1; }
 
-        .card-product { background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 12px; display: flex; height: 160px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.03); }
-        .card-img-wrap { width: 120px; height: 100%; flex-shrink: 0; }
-        .card-img { width: 100%; height: 100%; object-fit: cover; }
-        .card-body { padding: 12px; display: flex; flex-direction: column; justify-content: space-between; width: 100%; }
-        .btn-wa-mini { background: var(--wa); color: white; border-radius: 50px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; width: fit-content; align-self: flex-end; }
+        /* FILTER */
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .filter-pill { white-space: nowrap; padding: 6px 14px; border-radius: 50px; background: #fff; border: 1px solid #E2E8F0; color: #64748B; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+        .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        
+        /* CARD PRODUK */
+        .card-product { background: var(--card-bg); border-radius: 16px; border: none; overflow: hidden; margin-bottom: 15px; display: flex; height: 180px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; cursor: pointer; }
+        .card-product.vip { background: linear-gradient(to right, #FFFBEB, #FFFFFF); border: 1px solid #FCD34D; }
+        .vip-badge { position: absolute; top: 0; left: 0; background: var(--gold); color: #713F12; font-size: 0.6rem; font-weight: bold; padding: 2px 8px; border-bottom-right-radius: 8px; z-index: 2; }
+        .card-img-wrap { width: 130px; height: 100%; flex-shrink: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; } 
+        .no-img { width: 100%; height: 100%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 2rem; }
+        .card-body { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; width: 100%; }
+        .meta-tag { font-size: 0.7rem; color: var(--primary); background: #EFF6FF; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 4px; }
+        .prod-title { font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.3; color: #0F172A; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .prod-desc { font-size: 0.8rem; color: #64748B; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .btn-wa-mini { background: var(--wa-color); color: white; border-radius: 50px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px; border: none; }
+        
+        /* CARD INFO WARGA */
+        .card-info { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info-badge { font-size: 0.7rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; }
+        .badge-duka { background: #fee2e2; color: #991b1b; } 
+        .badge-acara { background: #dcfce7; color: #166534; }
+        .badge-umum { background: #e0f2fe; color: #075985; }
+        .info-date { font-size: 0.75rem; color: #94a3b8; }
+        .info-title { font-weight: 700; font-size: 1.1rem; color: #1e293b; margin-bottom: 5px; }
+        .info-desc { font-size: 0.9rem; color: #475569; line-height: 1.5; white-space: pre-wrap; }
+        .info-footer { margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; font-size: 0.75rem; color: #64748B; display: flex; align-items: center; gap: 5px; }
 
-        .card-info { background: #fff; border-radius: 12px; border-left: 5px solid var(--primary); padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        /* SKELETON */
+        .skeleton-card { background: #fff; border-radius: 16px; height: 140px; margin-bottom: 15px; display: flex; overflow: hidden; border: 1px solid #f1f5f9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .skeleton-img { width: 130px; height: 100%; background: #e2e8f0; flex-shrink: 0; }
+        .skeleton-body { padding: 12px; width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+        .skeleton-line { height: 12px; background: #e2e8f0; border-radius: 4px; width: 100%; }
+        .skeleton-line.short { width: 60%; }
+        .skeleton-line.medium { width: 80%; }
+        .skeleton-anim { animation: shimmer 1.5s infinite linear; background: linear-gradient(to right, #e2e8f0 4%, #f1f5f9 25%, #e2e8f0 36%); background-size: 1000px 100%; }
+        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
 
-        .skeleton { background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); background-size: 200% 100%; animation: 1.5s shine linear infinite; height: 160px; border-radius: 16px; margin-bottom: 12px; }
-        @keyframes shine { to { background-position-x: -200%; } }
+        /* MODAL VIDEO */
+        #videoModal .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+        #videoModal .modal-header { border-bottom: none; padding: 15px 20px; background: #fff; }
+        #videoModal .modal-title { font-weight: 700; font-size: 1.1rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        #videoModal .modal-body { padding: 0; background: #000; }
+        #videoModal .modal-footer { display: block; text-align: center; border-top: none; padding: 20px; background: #fff; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .welcome-text { font-size: 0.85rem; color: #64748B; margin-bottom: 15px; line-height: 1.5; }
+        .btn-masuk { width: 100%; border-radius: 50px; padding: 12px; font-weight: 700; background: var(--primary); border: none; }
 
-        .btn-float { position: fixed; right: 20px; z-index: 1050; padding: 12px 20px; border-radius: 50px; color: white; font-weight: bold; border: 2px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 13px; text-decoration: none; }
-        .btn-k { bottom: 170px; background: #0284c7; }
-        .btn-i { bottom: 110px; background: #dc2626; }
+        /* MODAL SLIDER */
+        .modal-bottom-sheet .modal-dialog { position: fixed; bottom: 0; margin: 0; width: 100%; max-width: 100%; }
+        .modal-bottom-sheet .modal-content { border-radius: 20px 20px 0 0; border: none; padding-bottom: 20px; max-height: 90vh; overflow-y: auto; }
+        .carousel-inner { background: #000; }
+        .carousel-item { height: 350px; text-align: center; } 
+        .carousel-item img { max-width: 100%; max-height: 100%; width: auto; height: 100%; object-fit: contain; margin: auto; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); z-index: 1020; border-top-left-radius: 20px; border-top-right-radius: 20px; }
-        .nav-item { text-align: center; color: #94A3B8; text-decoration: none; font-size: 0.7rem; font-weight: 600; cursor: pointer; }
-        .nav-item i { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1020; border-top-left-radius: 15px; border-top-right-radius: 15px; }
+        .nav-item { text-align: center; color: #94A3B8; text-decoration: none; font-size: 0.7rem; cursor: pointer; }
+        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
         .nav-item.active { color: var(--primary); }
+        .video-icon-small { font-size: 1.2rem; color: #64748B; cursor: pointer; }
         .d-none { display: none !important; }
     </style>
 </head>
 <body>
-    <div style="background:#DBEAFE; color:#1e40af; font-size:0.75rem; padding:6px 0; text-align:center;"><marquee scrollamount="5" id="teks-berjalan">Portal Bukit Asri - Ekonomi Kreatif Warga</marquee></div>
-    <header class="sticky-header"><div class="container"><div class="d-flex justify-content-between align-items-center mb-2"><h6 class="m-0 fw-bold text-primary"><i class="fas fa-city me-2"></i>Portal Bukit Asri</h6><i class="fas fa-phone-alt text-muted" onclick="bukaKontak()"></i></div><div class="search-wrap"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" class="search-input" onkeyup="filterToko()" placeholder="Cari jualan warga..."><i class="fas fa-times-circle clear-icon" id="clearBtn" onclick="clearSearch()"></i></div></div></header>
 
-    <main class="container mt-3">
-        <div id="skeletonLoader"><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="running-text-wrap">
+        <marquee id="teks-berjalan" scrollamount="5"></marquee>
+    </div>
+
+    <div class="sticky-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-building text-primary fa-lg"></i>
+                    <div>
+                        <h6 class="m-0 fw-bold">WargaNet</h6>
+                        <small class="text-muted" style="font-size: 0.7rem;">Direktori Usaha Warga</small>
+                    </div>
+                </div>
+                <i class="fas fa-play-circle video-icon-small" onclick="forceShowVideo()" title="Putar Sambutan"></i>
+            </div>
+            
+            <div class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" onkeyup="filterToko()" placeholder="Cari produk atau nama toko...">
+                <i class="fas fa-times-circle clear-icon" id="clearSearch" onclick="clearInput()"></i>
+            </div>
+            
+            <div class="filter-scroll" id="dynamicFilterContainer">
+                <div class="filter-pill active">Semua</div>
+                <div class="filter-pill skeleton-anim" style="width: 60px; border:none;"></div>
+                <div class="filter-pill skeleton-anim" style="width: 80px; border:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-2">
+        <div id="skeletonLoader">
+            <div class="skeleton-card"><div class="skeleton-img skeleton-anim"></div><div class="skeleton-body"><div class="skeleton-line short skeleton-anim"></div><div class="skeleton-line skeleton-anim"></div><div class="skeleton-line medium skeleton-anim"></div></div></div>
+            <div class="skeleton-card"><div class="skeleton-img skeleton-anim"></div><div class="skeleton-body"><div class="skeleton-line short skeleton-anim"></div><div class="skeleton-line skeleton-anim"></div><div class="skeleton-line medium skeleton-anim"></div></div></div>
+        </div>
+        
         <div id="productContainer" class="d-none"></div>
         <div id="infoContainer" class="d-none"></div>
-        <div id="emptyState" class="text-center py-5 d-none">Data tidak ditemukan.</div>
-    </main>
+        <div id="emptyState" class="text-center py-5 d-none"><p class="text-muted">Data tidak ditemukan.</p></div>
+    </div>
 
-    <a href="javascript:void(0)" onclick="bukaKontak()" class="btn-float btn-k"><i class="fas fa-phone-alt"></i> Kontak</a>
-    <a href="https://forms.gle/Q9GRfaWzo2YByhWn8" target="_blank" class="btn-float btn-i"><i class="fas fa-plus"></i> Jualan</a>
+    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
+        📞 Nomor Penting
+    </button>
+    <a href="https://forms.gle/Q9GRfaWzo2YByhWn8" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
+        <span>📝 Input Info</span>
+    </a>
 
-    <nav class="bottom-nav"><div class="nav-item active" id="navHome" onclick="switchTab('home')"><i class="fas fa-home"></i>Home</div><div class="nav-item" id="navInfo" onclick="switchTab('info')"><i class="fas fa-bullhorn"></i>Info</div><a href="https://forms.gle/Q9GRfaWzo2YByhWn8" target="_blank" class="nav-item"><i class="fas fa-plus-circle text-primary" style="font-size:1.5rem;"></i>Jualan</a><div class="nav-item" onclick="bukaKontak()"><i class="fas fa-phone-square-alt"></i>Kontak</div></nav>
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="navHome" onclick="switchTab('home')"><i class="fas fa-home"></i>Beranda</div>
+        <div class="nav-item" id="navInfo" onclick="switchTab('info')"><i class="fas fa-bullhorn"></i>Info</div>
+        <a href="https://forms.gle/Q9GRfaWzo2YByhWn8" class="nav-item"><i class="fas fa-plus-circle text-primary" style="font-size: 1.4rem;"></i>Jualan</a>
+        <a href="#" class="nav-item" id="btnAdmin"><i class="fas fa-user"></i>Admin</a>
+    </nav>
 
-    <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center;"><div style="background:white; width:85%; max-width:400px; border-radius:20px; overflow:hidden;"><div style="padding:15px; background:#f8fafc; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>📞 Kontak</b><span onclick="tutupKontak()" style="cursor:pointer; font-weight:bold;">&times;</span></div><div id="list-kontak-container" style="max-height:400px; overflow-y:auto; padding:10px;"></div></div></div>
+    <div class="modal fade modal-bottom-sheet" id="detailModal" tabindex="-1">
+        <div class="modal-dialog"><div class="modal-content"><div id="modalContent"></div></div></div>
+    </div>
 
+    <div class="modal fade" id="videoModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">👋 Sambutan Pak RW</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"><div class="video-container"><div id="youtubeFrame"></div></div></div>
+                <div class="modal-footer">
+                    <p class="welcome-text">"Web ini resmi dikelola oleh Pengurus RW 05 untuk memajukan ekonomi warga. Aman & Terpercaya."</p>
+                    <button type="button" class="btn btn-primary btn-masuk" data-bs-dismiss="modal">Masuk ke WargaNet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background: white; width: 95%; max-width: 450px; padding: 0; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto;">
+            <div id="list-kontak-container"><p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
-        let allData = [];
+        const WA_ADMIN = '6282260605301';
+        const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
+        const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
+        document.getElementById('youtubeFrame').innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
+        document.getElementById('btnAdmin').href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
+
+        // === MAPPING DATA (DISESUAIKAN DENGAN "Link Foto Bersih" & "Nama " Pake Spasi) ===
+        const KOLOM = {
+            NAMA_USAHA: 'Nama Usaha / Brand',
+            KATEGORI: 'Kategori',
+            FOTO: 'Link Foto Bersih', // PENTING: Pake yang Link Foto Bersih
+            FOTO_ALT: 'Foto Produk (berikan yang terbaik, Foto jangan blur)', // Cadangan
+            WA: 'No WhatsApp',
+            RT: 'RT',
+            ALAMAT: 'Alamat', 
+            OWNER: 'Nama ', // PENTING: Ada spasinya
+            STATUS: 'Status', 
+            PAKET: 'Paket',    
+            LANDING_PAGE: 'Link Landing Page'
+        };
+        const KOLOM_INFO = {
+            TANGGAL: 'Timestamp',
+            DARI: 'Dari',
+            JUDUL: 'Judul Info',    
+            KATEGORI: 'Kategori',
+            DESKRIPSI: 'Deskripsi', 
+            FOTO: 'Link Foto' 
+        };
+
+        let allData = [];
+        let infoData = [];
+        let currentTab = 'home';
+
+        // --- 1. INISIALISASI (SATU PINTU) ---
         document.addEventListener('DOMContentLoaded', () => {
-            fetch(scriptURL).then(res => res.json()).then(data => {
-                allData = data; document.getElementById('skeletonLoader').classList.add('d-none');
-                document.getElementById('productContainer').classList.remove('d-none'); renderCards(allData);
+            console.log("Mesin WargaNet Dinyalakan...");
+            
+            // Ambil Data Jualan
+            fetch(GAS_API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    allData = data;
+                    document.getElementById('skeletonLoader').classList.add('d-none');
+                    document.getElementById('productContainer').classList.remove('d-none');
+                    renderFilter('home');
+                    renderCards(allData);
+                    checkAndShowVideo();
+                })
+                .catch(e => console.log("Gagal ambil data jualan"));
+
+            // Ambil Data Info (Background)
+            fetch(GAS_API_URL + '?type=info').then(res => res.json()).then(data => { infoData = data; });
+            
+            // Ambil Running Text
+            fetch(GAS_API_URL + '?action=running').then(res => res.json()).then(d => { 
+                if(d.text) document.getElementById('teks-berjalan').innerText = d.text; 
             });
-            fetch(scriptURL + '?action=running').then(res => res.json()).then(d => { if(d.text) document.getElementById('teks-berjalan').innerText = d.text; });
+
+            // Preload Kontak
+            fetch(GAS_API_URL + '?action=kontak').then(res => res.json());
         });
 
-        function renderCards(data) {
-            const pc = document.getElementById('productContainer'); pc.innerHTML = '';
-            const valid = data.filter(item => item["Nama Usaha / Brand"] && item["Nama Usaha / Brand"].trim() !== "");
-            valid.forEach(item => {
-                pc.innerHTML += `<div class="card-product"><div class="card-img-wrap"><img src="${item["Link Foto Bersih"] || 'https://placehold.co/120x160?text=No+Photo'}" class="card-img"></div>
-                <div class="card-body"><div><span style="font-size:0.65rem; color:var(--primary); font-weight:700;">${item["Kategori"] || 'UMKM'}</span><h3 style="font-size:0.95rem; font-weight:700; margin:4px 0;">${item["Nama Usaha / Brand"]}</h3><p style="font-size:0.75rem; color:#64748b; margin:0;">👤 ${item["Nama "] || 'Warga'} | 📍 ${item["Alamat"] || '-'}</p></div>
-                <div class="d-flex justify-content-end"><a href="https://wa.me/${formatWA(item["No WhatsApp"])}" target="_blank" class="btn-wa-mini"><i class="fab fa-whatsapp"></i> Chat WA</a></div></div></div>`;
-            });
-        }
+        // --- 2. LOGIC TAB ---
+        function switchTab(tab) {
+            currentTab = tab;
+            const productCont = document.getElementById('productContainer');
+            const infoCont = document.getElementById('infoContainer');
+            const navHome = document.getElementById('navHome');
+            const navInfo = document.getElementById('navInfo');
+            const emptyState = document.getElementById('emptyState');
 
-        function formatWA(n) { if(!n) return ''; let num = n.toString().replace(/[^0-9]/g, ''); return num.startsWith('0') ? '62' + num.substring(1) : num; }
+            emptyState.classList.add('d-none');
 
-        window.switchTab = (tab) => {
-            document.getElementById('navHome').classList.toggle('active', tab === 'home');
-            document.getElementById('navInfo').classList.toggle('active', tab === 'info');
-            const pc = document.getElementById('productContainer'), ic = document.getElementById('infoContainer');
-            if(tab === 'home') { pc.classList.remove('d-none'); ic.classList.add('d-none'); }
-            else { pc.classList.add('d-none'); ic.classList.remove('d-none'); ic.innerHTML = '<p class="text-center py-5 text-muted">Memuat info terbaru...</p>';
-                fetch(scriptURL + '?type=info').then(res => res.json()).then(d => {
-                    ic.innerHTML = ''; d.forEach(item => {
-                        const v = Object.values(item); const j = item.judul || v[2]; const ds = item.deskripsi || v[4];
-                        if(j && j.trim() !== "") ic.innerHTML += `<div class="card-info"><h6 class="fw-bold m-0">${j}</h6><p class="small text-muted mt-2 mb-0">${ds || ''}</p></div>`;
+            if (tab === 'home') {
+                navHome.classList.add('active'); navInfo.classList.remove('active');
+                productCont.classList.remove('d-none'); infoCont.classList.add('d-none');
+                renderFilter('home');
+                renderCards(allData);
+            } else if (tab === 'info') {
+                navHome.classList.remove('active'); navInfo.classList.add('active');
+                productCont.classList.add('d-none'); infoCont.classList.remove('d-none');
+                
+                if (infoData.length === 0) {
+                    infoCont.innerHTML = '<p class="text-center py-5">⏳ Memuat Info...</p>';
+                    fetch(GAS_API_URL + '?type=info').then(res => res.json()).then(data => {
+                        infoData = data;
+                        renderFilter('info');
+                        renderInfo(infoData);
                     });
-                });
+                } else {
+                    renderFilter('info');
+                    renderInfo(infoData);
+                }
             }
         }
 
-        window.filterToko = () => {
-            const val = document.getElementById('searchInput').value.toLowerCase();
-            document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
-            const cards = document.getElementsByClassName('card-product'); let f = false;
-            for (let c of cards) { if(c.textContent.toLowerCase().includes(val)) { c.style.display = 'flex'; f = true; } else { c.style.display = 'none'; } }
-            document.getElementById('emptyState').classList.toggle('d-none', f || val === "");
+        // --- 3. RENDER KARTU JUALAN ---
+        function renderCards(data) {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = '';
+            
+            // Filter Data Valid
+            const validData = data.filter(item => item[KOLOM.NAMA_USAHA] && item[KOLOM.NAMA_USAHA].trim() !== "");
+            
+            if (validData.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
+            else { document.getElementById('emptyState').classList.add('d-none'); }
+            
+            validData.sort((a, b) => (b[KOLOM.PAKET]||'').toString().toLowerCase()==='vip' - (a[KOLOM.PAKET]||'').toString().toLowerCase()==='vip');
+
+            validData.forEach(item => {
+                // Logic Foto: Coba Link Bersih dulu, kalau gak ada coba kolom lama
+                let rawFoto = item[KOLOM.FOTO] || item[KOLOM.FOTO_ALT];
+                let thumb = getAllImages(rawFoto)[0];
+                let imgHTML = thumb ? `<img src="${thumb}" class="card-img" loading="lazy">` : `<div class="no-img"><i class="fas fa-image"></i></div>`;
+                
+                const isVip = (item[KOLOM.PAKET]||'').toString().toLowerCase() === 'vip';
+                const card = document.createElement('div');
+                card.className = `card-product ${isVip ? 'vip' : ''}`;
+                
+                // Klik Kartu -> Slider
+                card.onclick = (e) => { 
+                    if(!e.target.closest('.btn-wa-mini')) {
+                        showDetail(item, getAllImages(rawFoto), `Pemilik: ${item[KOLOM.OWNER] || '-'}`); 
+                    }
+                };
+
+                card.innerHTML = `
+                    ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
+                    <div class="card-img-wrap">${imgHTML}</div>
+                    <div class="card-body">
+                        <div>
+                            <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || 'UMKM'}</span>
+                            <h3 class="prod-title">${item[KOLOM.NAMA_USAHA]}</h3>
+                            <p class="prod-desc" style="margin-bottom: 2px;">👤 Pemilik: ${item[KOLOM.OWNER] || '-'}</p>
+                            <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">📍 ${item[KOLOM.ALAMAT] || '-'}</p>
+                        </div>
+                        <div class="action-row">
+                            <button class="btn-wa-mini"><i class="fab fa-whatsapp"></i> Chat</button>
+                        </div>
+                    </div>`;
+                container.appendChild(card);
+            });
         }
 
-        window.clearSearch = () => { document.getElementById('searchInput').value = ''; filterToko(); }
-        window.bukaKontak = () => {
+        // --- 4. RENDER INFO WARGA ---
+        function renderInfo(data) {
+            const container = document.getElementById('infoContainer');
+            container.innerHTML = '';
+            
+            if (!data || data.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
+            else { document.getElementById('emptyState').classList.add('d-none'); }
+
+            data.forEach(item => {
+                let badgeClass = 'badge-umum';
+                const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
+                if (kat.includes('duka')) badgeClass = 'badge-duka';
+                else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
+
+                let dateStr = item[KOLOM_INFO.TANGGAL] || '';
+                if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+
+                const card = document.createElement('div');
+                card.className = 'card-info';
+                
+                // Cek Foto Info
+                let imgInfo = '';
+                if(item[KOLOM_INFO.FOTO]) {
+                    imgInfo = `<img src="${item[KOLOM_INFO.FOTO]}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:10px;">`;
+                }
+
+                card.innerHTML = `
+                    ${imgInfo}
+                    <div class="info-header">
+                        <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
+                        <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
+                    </div>
+                    <h5 class="info-title">${item[KOLOM_INFO.JUDUL] || 'Info Warga'}</h5>
+                    <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI] || ''}</p>
+                    <div class="info-footer">
+                        <i class="fas fa-bullhorn text-primary"></i> Sumber: <strong>${item[KOLOM_INFO.DARI]}</strong>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        // --- 5. LOGIC FILTER ---
+        function renderFilter(type) {
+            const container = document.getElementById('dynamicFilterContainer');
+            container.innerHTML = '<div class="filter-pill active" onclick="filterData(\'Semua\', this)">Semua</div>';
+            
+            let sourceSet = new Set();
+            if (type === 'home') {
+                sourceSet = new Set(allData.map(d => d[KOLOM.KATEGORI]).filter(Boolean));
+            } else {
+                sourceSet = new Set(infoData.map(d => d[KOLOM_INFO.DARI]).filter(Boolean));
+            }
+
+            sourceSet.forEach(item => {
+                const pill = document.createElement('div');
+                pill.className = 'filter-pill';
+                pill.innerText = item;
+                pill.onclick = function() { filterData(item, this); };
+                container.appendChild(pill);
+            });
+        }
+
+        function filterData(filterValue, element) {
+            document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            if (currentTab === 'home') {
+                if (filterValue === 'Semua') renderCards(allData);
+                else renderCards(allData.filter(d => d[KOLOM.KATEGORI] === filterValue));
+            } else {
+                if (filterValue === 'Semua') renderInfo(infoData);
+                else renderInfo(infoData.filter(d => d[KOLOM_INFO.DARI] === filterValue));
+            }
+        }
+
+        // --- 6. LOGIC KONTAK (MODAL) ---
+        window.bukaKontak = function() {
             document.getElementById('modalKontak').style.display = 'flex';
-            const l = document.getElementById('list-kontak-container'); l.innerHTML = 'Memuat...';
-            fetch(scriptURL + '?action=kontak').then(res => res.json()).then(d => {
-                l.innerHTML = ''; d.forEach(k => { l.innerHTML += `<div style="padding:12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;"><div><b>${k.Nama}</b><br><small>${k.Nomor}</small></div><a href="https://wa.me/${formatWA(k.Nomor)}" target="_blank" style="color:green; font-weight:bold; text-decoration:none;">HUBUNGI</a></div>`; });
+            const container = document.getElementById('list-kontak-container');
+            container.innerHTML = '<p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>';
+            
+            fetch(GAS_API_URL + '?action=kontak').then(res => res.json()).then(data => {
+                if(!data || data.length === 0) { container.innerHTML = '<p class="text-center p-3">Data kosong.</p>'; return; }
+                
+                const headerHtml = `<div class="sticky-top bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-phone-square-alt me-2"></i>Nomor Penting</h6>
+                    <button onclick="tutupKontak()" class="btn-close"></button>
+                </div>`;
+                
+                const listHtml = data.map(item => {
+                    let num = item['Nomor'].toString().replace(/[^0-9]/g, '');
+                    if(num.startsWith('0')) num = '62' + num.substring(1);
+                    return `<div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+                        <div><div class="fw-bold">${item['Nama']}</div><div class="small text-muted">${item['Nomor']}</div></div>
+                        <a href="https://wa.me/${num}" class="btn btn-success btn-sm rounded-pill"><i class="fab fa-whatsapp"></i> WA</a>
+                    </div>`;
+                }).join('');
+                
+                container.innerHTML = headerHtml + listHtml;
             });
         }
         window.tutupKontak = () => { document.getElementById('modalKontak').style.display = 'none'; }
+
+        // --- 7. HELPER FUNCTIONS ---
+        function showDetail(item, images, desc) {
+            let sliderHTML = images.length ? (images.length > 1 ? `<div id="c" class="carousel slide" data-bs-ride="carousel"><div class="carousel-inner">${images.map((img,i)=>`<div class="carousel-item ${i===0?'active':''}"><img src="${img}" class="d-block w-100"></div>`).join('')}</div><button class="carousel-control-prev" type="button" data-bs-target="#c" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button><button class="carousel-control-next" type="button" data-bs-target="#c" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button></div>` : `<img src="${images[0]}" class="d-block w-100">`) : `<div style="height:200px;background:#eee;"></div>`;
+            document.getElementById('modalContent').innerHTML = `<div class="position-relative"><button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="z-index:10"></button>${sliderHTML}</div><div class="p-4"><h4 class="fw-bold">${item[KOLOM.NAMA_USAHA]}</h4><p>${desc}</p><a href="https://wa.me/${formatWA(item[KOLOM.WA])}" class="btn btn-success w-100 rounded-pill">Chat WA</a></div>`;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        function filterToko() {
+            const val = document.getElementById('searchInput').value.toLowerCase().trim();
+            const clearBtn = document.getElementById('clearSearch');
+            clearBtn.style.display = val.length > 0 ? "block" : "none";
+            
+            const cards = document.getElementsByClassName('card-product');
+            let hasMatch = false;
+            for (let c of cards) {
+                if(c.textContent.toLowerCase().includes(val)) { c.style.setProperty('display', '', 'important'); hasMatch = true; } 
+                else { c.style.setProperty('display', 'none', 'important'); }
+            }
+            document.getElementById('emptyState').classList.toggle('d-none', hasMatch || val === "");
+        }
+        
+        function clearInput() { document.getElementById('searchInput').value = ""; filterToko(); }
+        
+        function formatWA(n) { return n ? (n.toString().startsWith('0') ? '62'+n.toString().substring(1) : n) : ''; }
+        function getAllImages(raw) { if(!raw) return []; return raw.toString().split(',').map(l => { let m = l.match(/id=([a-zA-Z0-9_-]{20,})/) || l.match(/\/d\/([a-zA-Z0-9_-]{20,})/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : null }).filter(Boolean); }
+        function checkAndShowVideo() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastSeen = localStorage.getItem('warganet_video_seen');
+            if (lastSeen !== today) { setTimeout(() => { new bootstrap.Modal(document.getElementById('videoModal')).show(); localStorage.setItem('warganet_video_seen', today); }, 1500); }
+        }
+        function forceShowVideo() { new bootstrap.Modal(document.getElementById('videoModal')).show(); }
     </script>
 </body>
 </html>
