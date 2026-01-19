@@ -114,6 +114,21 @@
         .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
         .nav-item.active { color: var(--primary); }
         .video-icon-small { font-size: 1.2rem; color: #64748B; cursor: pointer; }
+        /* --- BUMBU BIAR TOMBOL X RAPI --- */
+.clear-icon {
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.clear-icon:hover {
+    color: #ef4444 !important; /* Berubah merah pas disentuh */
+    opacity: 1;
+}
+
+.search-input {
+    padding-right: 40px !important; /* Kasih ruang biar teks gak nabrak tombol X */
+}
     </style>
 </head>
 <body>
@@ -666,6 +681,7 @@ function clearInput() {
 </script>
 </body>
 </html>
+
 
 
 
