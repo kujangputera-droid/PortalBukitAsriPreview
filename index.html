@@ -210,9 +210,14 @@
         const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
-        document.getElementById('youtubeFrame').innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
-        document.getElementById('btnAdmin').href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
-
+        const ytFrame = document.getElementById('youtubeFrame');
+if (ytFrame) {
+    ytFrame.innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
+}
+        const adminBtn = document.getElementById('btnAdmin');
+if (adminBtn) {
+    adminBtn.href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
+}
         // MAPPING KOLOM (SESUAIKAN DENGAN SHEET BARU)
         const KOLOM = {
             NAMA_USAHA: 'Nama Usaha / Brand',
@@ -681,6 +686,7 @@ function clearInput() {
 </script>
 </body>
 </html>
+
 
 
 
