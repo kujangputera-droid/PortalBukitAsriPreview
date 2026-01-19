@@ -267,162 +267,60 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- 1. CONFIG ---
-        const WA_ADMIN = '6282260605301';
-        const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
+        // PASTE LINK .EXEC BARU KAMU DI SINI
+        const scriptURL = 'TEMPEL_LINK_BARU_DI_SINI';
 
-        let allData = [];
-        let infoData = [];
-        let currentTab = 'home';
-
-        // --- 2. LOGIKA STARTUP ---
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Web Siap! Menghubungi Server...");
-            
-            // Pasang Youtube
-            const yt = document.getElementById('youtubeFrame');
-            if(yt) yt.innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
-            
-            // Ambil Data Utama
+            console.log("Menghubungi database...");
             fetch(scriptURL)
                 .then(res => res.json())
                 .then(data => {
-                    allData = data;
-                    console.log("Data Diterima!", data);
+                    console.log("Data Berhasil Masuk:", data);
+                    const container = document.getElementById('productContainer') || document.getElementById('content-container');
+                    if(!container) return;
+                    container.innerHTML = '';
                     
-                    // Hilangkan Loading (Cek dua ID sekaligus biar aman)
-                    const loader = document.getElementById('skeletonLoader') || document.getElementById('loading');
-                    if(loader) loader.classList.add('d-none');
-                    
-                    renderCards(allData);
-                })
-                .catch(err => {
-                    console.error("Gagal Ambil Data:", err);
-                    const cont = document.getElementById('productContainer') || document.getElementById('content-container');
-                    if(cont) cont.innerHTML = `<p style="text-align:center; padding:20px;">Koneksi Terputus. Coba Refresh Halaman.</p>`;
-                });
+                    data.forEach(item => {
+                        const vals = Object.values(item);
+                        // Ambil data berdasarkan urutan kolom agar anti-salah
+                        const namaToko = item["Nama Usaha / Brand"] || vals[5] || "Tanpa Nama";
+                        const pemilik = item["Nama"] || vals[1] || "Warga";
+                        const wa = item["No WhatsApp"] || vals[2] || "";
+                        const foto = item["Link Foto Bersih"] || vals[12] || "";
 
-            loadRunningText();
+                        container.innerHTML += `
+                            <div style="display:flex; background:white; padding:10px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
+                                <img src="${foto}" style="width:80px; height:80px; object-fit:cover; border-radius:5px; margin-right:10px;" onerror="this.src='https://placehold.co/80'">
+                                <div>
+                                    <h6 style="margin:0;">${namaToko}</h6>
+                                    <small>${pemilik}</small><br>
+                                    <button onclick="window.open('https://wa.me/${wa}')" style="background:green; color:white; border:none; padding:2px 10px; border-radius:5px; font-size:10px;">Chat</button>
+                                </div>
+                            </div>`;
+                    });
+                    document.getElementById('skeletonLoader').classList.add('d-none');
+                })
+                .catch(err => console.error("Database mogok:", err));
         });
 
-        // --- 3. RENDER KARTU (PASTI MUNCUL) ---
-        function renderCards(data) {
-            // Cari wadah di mana saja dia berada
-            const container = document.getElementById('productContainer') || document.getElementById('content-container') || document.getElementById('main-content');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding:20px;">Data di Google Sheets Masih Kosong.</p>';
-                return;
-            }
-
-            data.forEach(item => {
-                // Ambil data dengan Nama Kolom Persis atau Urutan Kolom (Anti-Typo)
-                const baris = Object.values(item);
-                const namaToko = item["Nama Usaha / Brand"] || baris[5] || "Tanpa Nama";
-                const namaWarga = item["Nama"] || baris[1] || "Warga";
-                const alamat = item["Alamat"] || baris[3] || "-";
-                const wa = item["No WhatsApp"] || baris[2] || "";
-                const foto = item["Link Foto Bersih"] || item["Link Foto"] || "";
-
-                const card = document.createElement('div');
-                card.style = "display:flex; background:white; border-radius:12px; overflow:hidden; margin-bottom:12px; border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,0.05); min-height:100px;";
-                
-                card.innerHTML = `
-                    <div style="width:100px; height:100px; flex-shrink:0; background:#f8f9fa;">
-                        ${foto ? `<img src="${foto}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:10px;">No Img</div>`}
-                    </div>
-                    <div style="padding:10px; flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
-                        <div>
-                            <h3 style="font-size:14px; margin:0 0 4px 0; color:#333; font-weight:bold;">${namaToko}</h3>
-                            <p style="font-size:11px; color:#666; margin:0;">👤 ${namaWarga}<br>📍 ${alamat}</p>
-                        </div>
-                        <div style="text-align:right;">
-                            <button onclick="window.open('https://wa.me/${formatWA(wa)}', '_blank')" style="background:#22c55e; color:white; border:none; padding:4px 12px; border-radius:8px; font-size:11px; font-weight:bold; cursor:pointer;">Chat WA</button>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        // --- 4. FORMAT WA ---
-        function formatWA(n) {
-            if(!n) return '';
-            let num = n.toString().replace(/[^0-9]/g, '');
-            return num.startsWith('0') ? '62' + num.substring(1) : num;
-        }
-
-        // --- 5. NAVIGASI ---
-        window.switchTab = function(tab) {
-            currentTab = tab;
-            const navH = document.getElementById('navHome');
-            const navI = document.getElementById('navInfo');
-            if(navH) navH.classList.toggle('active', tab === 'home');
-            if(navI) navI.classList.toggle('active', tab === 'info');
-            
-            const pc = document.getElementById('productContainer') || document.getElementById('content-container');
-            const ic = document.getElementById('infoContainer');
-            
-            if(pc) pc.classList.toggle('d-none', tab !== 'home');
-            if(ic) ic.classList.toggle('d-none', tab !== 'info');
-            
-            if(tab === 'info' && infoData.length === 0 && ic) {
-                ic.innerHTML = '<p style="text-align:center; padding:20px;">⏳ Memuat Info Warga...</p>';
-                fetch(scriptURL + '?type=info')
-                    .then(res => res.json())
-                    .then(data => {
-                        infoData = data;
-                        ic.innerHTML = '';
-                        data.forEach(inf => {
-                            ic.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee;"><b>${inf.judul || inf.Judul}</b><br><small>${inf.deskripsi || inf.Deskripsi}</small></div>`;
-                        });
-                    });
-            }
-        }
-
-        // --- 6. KONTAK & LAIN-LAIN ---
         window.bukaKontak = function() {
-            const mod = document.getElementById('modalKontak');
-            if(mod) mod.style.display = 'flex';
-            const cont = document.getElementById('list-kontak-container');
-            if(cont) {
-                cont.innerHTML = '<p style="text-align:center; padding:20px;">Memuat Kontak...</p>';
-                fetch(scriptURL + '?action=kontak').then(res => res.json()).then(data => {
-                    cont.innerHTML = '<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>Kontak Penting</b><button onclick="tutupKontak()" style="border:none; background:none; font-size:20px;">&times;</button></div>';
-                    data.forEach(k => {
-                        cont.innerHTML += `<div style="padding:15px; border-bottom:1px solid #f9f9f9; display:flex; justify-content:space-between;"><span>${k.Nama}</span><a href="https://wa.me/${formatWA(k.Nomor)}" style="color:green; text-decoration:none;">WA</a></div>`;
-                    });
-                });
-            }
-        }
-        window.tutupKontak = () => {
-            const mod = document.getElementById('modalKontak');
-            if(mod) mod.style.display = 'none';
+            document.getElementById('modalKontak').style.display = 'flex';
+            fetch(scriptURL + '?action=kontak').then(res => res.json()).then(data => {
+                const cont = document.getElementById('list-kontak-container');
+                cont.innerHTML = data.map(k => `<div style="padding:10px; border-bottom:1px solid #eee;">${Object.values(k)[0]} - ${Object.values(k)[1]}</div>`).join('');
+            });
         };
-        function loadRunningText() { 
-            const tb = document.getElementById('teks-berjalan');
-            if(tb) fetch(scriptURL + '?action=running').then(res => res.json()).then(data => { if(data.text) tb.innerText = data.text; }); 
-        }
-        function preloadKontak() { console.log("System Ready"); }
+        window.tutupKontak = () => document.getElementById('modalKontak').style.display = 'none';
     </script>
-    
-    <style>
-        .btn-float { position: fixed; right: 20px; z-index: 1000; padding: 10px 18px; border-radius: 50px; color: white; font-weight: bold; text-decoration: none; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 13px; }
-        .btn-k { bottom: 85px; background: #0284c7; }
-        .btn-i { bottom: 25px; background: #dc2626; }
-    </style>
 
-    <button onclick="bukaKontak()" class="btn-float btn-k">📞 Nomor Penting</button>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" class="btn-float btn-i">📝 Input Jualan</a>
-
-    <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center;">
-        <div style="background:white; width:90%; max-width:400px; border-radius:12px; max-height:85vh; overflow-y:auto;" id="list-kontak-container"></div>
+    <button onclick="bukaKontak()" style="position:fixed; bottom:20px; right:20px; z-index:999; background:blue; color:white; padding:10px; border-radius:50px;">📞 Kontak</button>
+    <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:white; padding:20px; border-radius:10px; width:90%; max-width:400px;" id="list-kontak-container"></div>
     </div>
 </body>
 </html>
     
+
 
 
 
