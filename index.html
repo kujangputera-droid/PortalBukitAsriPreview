@@ -691,57 +691,49 @@
   // ============================================================
   document.addEventListener('DOMContentLoaded', function() {
       console.log("Website siap! Memulai pengambilan data...");
-      loadInfoWarga();   // Ambil data untuk Beranda/Info
-      loadRunningText(); // Ambil Running Text
-      preloadKontak();   // Curi start data kontak
+      
+      // Jalankan fungsi jika sudah terdefinisi
+      if (typeof loadInfoWarga === 'function') loadInfoWarga();   
+      if (typeof loadRunningText === 'function') loadRunningText(); 
+      if (typeof preloadKontak === 'function') preloadKontak();   
   });
 
   // ============================================================
-  // 2️⃣ BAGIAN INFO WARGA (FIX MASALAH UNDEFINED)
+  // 2️⃣ BAGIAN INFO WARGA
   // ============================================================
   function loadInfoWarga() {
-      // Pastikan ID container ini benar (biasanya 'content-container')
       const container = document.getElementById('content-container'); 
-      
-      if(!container) return; // Kalau gak nemu wadahnya, stop.
+      if(!container) return; 
 
       container.innerHTML = '<div style="text-align:center; padding:20px;">⏳ Sedang memuat kabar warga...</div>';
 
       fetch(scriptURL)
       .then(response => response.json())
       .then(data => {
-          container.innerHTML = ''; // Hapus loading
-
+          container.innerHTML = ''; 
           if (data.length === 0) {
               container.innerHTML = '<p style="text-align:center;">Belum ada info.</p>';
               return;
           }
 
-          // --- LOGIKA RENDER KARTU ---
           data.forEach(item => {
-              // Format Tanggal
               let tanggal = new Date(item.timestamp).toLocaleDateString('id-ID');
+              let gambarHTML = (item.foto && item.foto !== "") 
+                  ? `<img src="${item.foto}" alt="Foto" style="width:100%; height:200px; object-fit:cover; border-radius:8px 8px 0 0;">` 
+                  : '';
 
-              // Cek Foto
-              let gambarHTML = '';
-              if (item.foto && item.foto !== "") {
-                  gambarHTML = `<img src="${item.foto}" alt="Foto" style="width:100%; height:200px; object-fit:cover; border-radius:8px 8px 0 0;">`;
-              }
-
-              // RENDER HTML KARTU
-              // Perhatikan: kita pakai item.judul, item.deskripsi (BUKAN ANGKA)
               const card = `
                   <div class="card" style="background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:20px; overflow:hidden; border:1px solid #f0f0f0;">
                       ${gambarHTML}
                       <div class="card-body" style="padding:15px;">
                           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                              <span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${item.kategori}</span>
+                              <span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${item.kategori || 'Info'}</span>
                               <small style="color:#94a3b8;">${tanggal}</small>
                           </div>
-                          <h3 style="margin:0 0 10px 0; font-size:18px; color:#1e293b; line-height:1.4;">${item.judul}</h3>
-                          <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:15px;">${item.deskripsi}</p>
+                          <h3 style="margin:0 0 10px 0; font-size:18px; color:#1e293b; line-height:1.4;">${item.judul || 'Tanpa Judul'}</h3>
+                          <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:15px;">${item.deskripsi || ''}</p>
                           <div style="border-top:1px solid #f1f5f9; padding-top:10px; font-size:13px; color:#64748b;">
-                              📢 Info dari: <strong>${item.dari}</strong>
+                              📢 Info dari: <strong>${item.dari || 'Admin'}</strong>
                           </div>
                       </div>
                   </div>
@@ -766,57 +758,43 @@
               const marquee = document.getElementById('teks-berjalan');
               if(marquee) marquee.innerText = data.text;
           }
-      });
+      }).catch(e => console.log("Skip running text."));
   }
 
   // ============================================================
   // 4️⃣ BAGIAN KONTAK (MODAL POPUP)
   // ============================================================
-  // --- 1. Fungsi Buka Modal & Ambil Data ---
   window.bukaKontak = function() { 
       const container = document.getElementById('list-kontak-container');
-      document.getElementById('modalKontak').style.display = 'flex';
-      
-      container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
+      const modal = document.getElementById('modalKontak');
+      if(modal) modal.style.display = 'flex';
+      if(container) container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
       
       fetch(`${scriptURL}?action=kontak&t=${new Date().getTime()}`)
           .then(res => res.json())
-          .then(data => {
-              renderKontak(data);
-          })
+          .then(data => { renderKontak(data); })
           .catch(err => {
-              console.error(err);
-              container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
+              if(container) container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
           });
   }
 
   window.tutupKontak = function() {
-      document.getElementById('modalKontak').style.display = 'none';
+      const modal = document.getElementById('modalKontak');
+      if(modal) modal.style.display = 'none';
   }
 
-  // --- 2. Fungsi Gambar List (Tanpa Grouping/Tanpa Header Ganda) ---
   function renderKontak(data) {
       const container = document.getElementById('list-kontak-container');
+      if(!container) return;
       container.innerHTML = '';
 
-      if (!data || data.length === 0) {
-          container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
-          return;
-      }
-
-      // HEADER TUNGGAL & TOMBOL SILANG
       const headerHtml = `
           <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-              <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
-                  <i class="fas fa-phone-square-alt me-2"></i>Nomor Penting
-              </h6>
-              <button onclick="tutupKontak()" style="border: none; background: #f1f5f9; color: #64748b; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 0;">
-                  &times;
-              </button>
+              <h6 class="mb-0 fw-bold text-primary" style="margin:0;"><i class="fas fa-phone-square-alt me-2"></i>Nomor Penting</h6>
+              <button onclick="tutupKontak()" style="border: none; background: #f1f5f9; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; cursor: pointer;">&times;</button>
           </div>
       `;
 
-      // LIST NOMOR
       const listHtml = `
           <div class="list-group list-group-flush">
               ${data.map(item => {
@@ -824,71 +802,50 @@
                   let rawNum = item['Nomor'] || '';
                   let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
                   if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
-
                   let isEmergency = cleanNum.length <= 4;
                   let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
-                  let icon = isEmergency ? 'fa-phone-alt' : 'fa-whatsapp';
-                  let btnColor = isEmergency ? '#ef4444' : '#22c55e';
-                  let btnText = isEmergency ? 'Panggil' : 'WA';
 
                   return `
-                  <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 15px; border-bottom: 1px solid #f1f5f9; background:white;">
-                      <div style="flex: 1; padding-right: 10px;">
-                          <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${nama}</div>
-                          <div style="font-size:0.8rem; color:#64748b; margin-top: 2px;">${rawNum}</div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 15px; border-bottom: 1px solid #f1f5f9;">
+                      <div style="flex: 1;">
+                          <div style="font-weight:bold; color:#334155;">${nama}</div>
+                          <div style="font-size:0.8rem; color:#64748b;">${rawNum}</div>
                       </div>
-                      <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px; white-space: nowrap;">
-                          <i class="fab ${icon}"></i> ${btnText}
+                      <a href="${link}" target="_blank" style="background:${isEmergency ? '#ef4444' : '#22c55e'}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold;">
+                          ${isEmergency ? 'Panggil' : 'WA'}
                       </a>
                   </div>`;
               }).join('')}
           </div>
       `;
-
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX DUA TAB) ---
-function filterToko() {
-    const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase().trim();
-    const clearBtn = document.getElementById('clearSearch');
-    const emptyState = document.getElementById('emptyState');
-    
-    // 1. Munculkan/Sembunyikan tombol silang
-    if(clearBtn) clearBtn.style.display = input.value.length > 0 ? "block" : "none";
 
-    // 2. Deteksi Tab Aktif
+  // --- MESIN PENCARIAN ---
+  window.filterToko = function() {
+    const input = document.getElementById('searchInput');
+    if(!input) return;
+    const filter = input.value.toLowerCase().trim();
     const isHome = document.getElementById('navHome').classList.contains('active');
-    const targetId = isHome ? 'productContainer' : 'infoContainer';
-    const container = document.getElementById(targetId);
-    
+    const container = document.getElementById(isHome ? 'productContainer' : 'infoContainer');
     if (!container) return;
 
-    // 3. Ambil kartu berdasarkan tab-nya
-    // Kalau di Home cari 'card-product', kalau di Info cari 'card-info'
-    const cardClass = isHome ? 'card-product' : 'card-info';
-    const cards = container.getElementsByClassName(cardClass);
-
+    const cards = container.getElementsByClassName(isHome ? 'card-product' : 'card-info');
     let hasMatch = false;
 
     for (let i = 0; i < cards.length; i++) {
-        const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
-        
-        if (textValue.indexOf(filter) > -1) {
+        if (cards[i].textContent.toLowerCase().indexOf(filter) > -1) {
             cards[i].style.setProperty('display', '', 'important');
             hasMatch = true;
         } else {
             cards[i].style.setProperty('display', 'none', 'important');
         }
     }
+    const es = document.getElementById('emptyState');
+    if (es) es.classList.toggle('d-none', hasMatch || filter === "");
+  }
 
-    // 4. Tampilkan pesan "Data tidak ditemukan"
-    if (hasMatch || filter === "") {
-        emptyState.classList.add('d-none');
-    } else {
-        emptyState.classList.remove('d-none');
-    }
-}
+  function preloadKontak() { console.log("Kontak Ready."); }
 </script>
 </body>
 </html>
