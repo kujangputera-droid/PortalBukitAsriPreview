@@ -358,7 +358,7 @@
 
     // --- SATPAM VALIDASI (Logic Resume Point 2) ---
     // Cuma ambil data yang Status-nya "active" dari Sheet Kamus
-    const dataValid = data.filter(item => item.Status === "active");
+    const dataValid = data.filter(item => item["Status"] === "Active");
 
     if (dataValid.length === 0) {
         document.getElementById('emptyState').classList.remove('d-none');
@@ -668,6 +668,7 @@ function clearInput() {
 </script>
 </body>
 </html>
+
 
 
 
