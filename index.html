@@ -623,35 +623,38 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX BOOTSTRAP) ---
+        // --- MESIN PENCARIAN DIREKTORI (VERSI FINAL SINKRON) ---
 function filterToko() {
     const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase();
-    const container = document.getElementById('daftar-jualan-container');
+    const filter = input.value.toLowerCase().trim();
     
-    // Cari semua elemen yang punya class 'card' di dalam container
+    // Kita arahkan langsung ke productContainer punya kamu
+    const container = document.getElementById('productContainer');
+    
+    // Cari semua kartu jualan di dalamnya
     const cards = container.querySelectorAll('.card');
 
     cards.forEach(card => {
-        // Kita ambil teks dari kartu tersebut
-        const textValue = card.textContent || card.innerText;
+        // Ambil teks (Nama Produk, Toko, dll)
+        const textValue = (card.textContent || card.innerText).toLowerCase();
         
-        // Cari "Pembungkus" kartu tersebut (biasanya div kolom)
-        // supaya kalau kartu sembunyi, ruang kosongnya juga hilang
-        const wrapper = card.parentElement; 
+        // Cari pembungkus kolom Bootstrap-nya
+        const colWrapper = card.closest('[class*="col"]'); 
+        const targetElement = colWrapper || card;
 
-        if (textValue.toLowerCase().indexOf(filter) > -1) {
-            // Tampilkan pembungkusnya
-            wrapper.style.setProperty('display', '', 'important');
+        if (textValue.indexOf(filter) > -1) {
+            // Tampilkan kembali
+            targetElement.style.setProperty('display', '', 'important');
         } else {
-            // Sembunyikan pembungkusnya
-            wrapper.style.setProperty('display', 'none', 'important');
+            // Sembunyikan
+            targetElement.style.setProperty('display', 'none', 'important');
         }
     });
 }
 </script>
 </body>
 </html>
+
 
 
 
