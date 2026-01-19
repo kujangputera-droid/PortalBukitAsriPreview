@@ -639,22 +639,32 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- FUNGSI SEARCH & CLEAR INPUT ---
+        // --- MESIN PENCARIAN PINTAR (SUPPORT TAB JUALAN & INFO) ---
 function filterToko() {
     const input = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearch');
     const filter = input.value.toLowerCase().trim();
-    const container = document.getElementById('productContainer');
+    const clearBtn = document.getElementById('clearSearch');
     const emptyState = document.getElementById('emptyState');
     
-    // Munculkan/Sembunyikan tombol silang
-    clearBtn.style.display = input.value.length > 0 ? "block" : "none";
+    // 1. Munculkan/Sembunyikan tombol silang (X)
+    if(clearBtn) clearBtn.style.display = input.value.length > 0 ? "block" : "none";
 
-    const cards = container.getElementsByClassName('card-product');
+    // 2. DETEKSI TAB: Cek kita lagi di tab mana sekarang
+    // Kita liat navHome punya class 'active' atau nggak
+    const isHome = document.getElementById('navHome').classList.contains('active');
+    const targetId = isHome ? 'productContainer' : 'infoContainer';
+    
+    const container = document.getElementById(targetId);
+    if (!container) return;
+
+    // 3. AMBIL SEMUA ANAK (Kartu) di container yang aktif
+    const cards = container.children;
     let hasMatch = false;
 
     for (let i = 0; i < cards.length; i++) {
+        // Cek teks di dalam kartu
         const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
+        
         if (textValue.indexOf(filter) > -1) {
             cards[i].style.setProperty('display', '', 'important');
             hasMatch = true; // Ada yang cocok!
@@ -663,24 +673,17 @@ function filterToko() {
         }
     }
 
-    // Munculkan pesan "Data Tidak Ditemukan" jika tidak ada yang cocok
+    // 4. Munculkan pesan "Data Tidak Ditemukan" kalau zonk
     if (hasMatch || filter === "") {
         emptyState.classList.add('d-none');
     } else {
         emptyState.classList.remove('d-none');
     }
 }
-
-// Fungsi untuk hapus ketikan sekali klik
-function clearInput() {
-    const input = document.getElementById('searchInput');
-    input.value = "";
-    filterToko(); // Jalankan filter lagi biar semua kartu muncul
-    input.focus(); // Balikin kursor ke kotak search
-}
 </script>
 </body>
 </html>
+
 
 
 
