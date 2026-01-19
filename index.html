@@ -306,24 +306,52 @@
         }
 
         // --- 4. RENDER KARTU JUALAN ---
+        
         function renderCards(data) {
-            const container = document.getElementById('productContainer');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card-product';
-                // Sesuaikan mapping kolom dengan properti dari Apps Script kamu
-                card.innerHTML = `
-                    <div class="card-body">
-                        <h3 class="prod-title">${item['Nama Usaha / Brand'] || item.judul || 'Tanpa Nama'}</h3>
-                        <p class="prod-desc">👤 ${item['Nama'] || 'Warga'}<br>📍 ${item['Alamat'] || '-'}</p>
-                        <button class="btn-wa-mini" onclick="window.open('https://wa.me/${item['No WhatsApp'] || ''}', '_blank')">Chat</button>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
+    const container = document.getElementById('productContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">Data kosong atau tidak terbaca.</p>';
+        return;
+    }
+
+    data.forEach(item => {
+        // PENCARIAN CERDAS: Cari nama usaha di berbagai kemungkinan nama kolom
+        const namaToko = item['Nama Usaha / Brand'] || item['Nama Usaha'] || item['Judul'] || Object.values(item)[5] || 'Tanpa Nama';
+        const namaWarga = item['Nama'] || item['Pemilik'] || Object.values(item)[1] || 'Warga';
+        const alamatWarga = item['Alamat'] || item['Lokasi'] || Object.values(item)[3] || '-';
+        const noWA = item['No WhatsApp'] || item['WhatsApp'] || Object.values(item)[2] || '';
+
+        const card = document.createElement('div');
+        card.className = 'card-product';
+        card.style = "background:white; border-radius:10px; margin-bottom:15px; border:1px solid #eee; padding:15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
+        
+        card.innerHTML = `
+            <div class="card-body">
+                <h3 style="margin:0 0 5px 0; font-size:1.1rem; color:#0284c7;">${namaToko}</h3>
+                <p style="margin:0; font-size:0.85rem; color:#475569;">
+                    👤 <b>${namaWarga}</b><br>
+                    📍 ${alamatWarga}
+                </p>
+                <div style="margin-top:10px; text-align:right;">
+                    <button onclick="window.open('https://wa.me/${formatWA(noWA)}', '_blank')" 
+                            style="background:#22c55e; color:white; border:none; padding:6px 15px; border-radius:20px; font-size:0.8rem; cursor:pointer; font-weight:bold;">
+                        <i class="fab fa-whatsapp"></i> Chat WA
+                    </button>
+                </div>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+// Tambahkan fungsi formatWA ini juga di bawahnya biar gak error
+function formatWA(n) {
+    if(!n) return '';
+    let num = n.toString().replace(/[^0-9]/g, '');
+    return num.startsWith('0') ? '62' + num.substring(1) : num;
+}
 
         // --- 5. BAGIAN INFO WARGA ---
         function loadInfoWarga() {
@@ -392,6 +420,7 @@
     </style>
 </body>
 </html>
+
 
 
 
