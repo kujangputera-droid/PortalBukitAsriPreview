@@ -267,7 +267,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- 1. KONFIGURASI ---
+        // --- 1. CONFIG ---
         const WA_ADMIN = '6282260605301';
         const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
         const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
@@ -278,130 +278,144 @@
 
         // --- 2. LOGIKA STARTUP ---
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("Website siap! Memulai pengambilan data...");
+            console.log("Web Siap! Menghubungi Server...");
             
-            // Set Youtube & Admin
+            // Pasang Youtube
             const yt = document.getElementById('youtubeFrame');
             if(yt) yt.innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
             
-            // Ambil Data Jualan
+            // Ambil Data Utama
             fetch(scriptURL)
                 .then(res => res.json())
                 .then(data => {
                     allData = data;
-                    console.log("Data diterima:", allData);
-                    const loader = document.getElementById('skeletonLoader');
+                    console.log("Data Diterima!", data);
+                    
+                    // Hilangkan Loading (Cek dua ID sekaligus biar aman)
+                    const loader = document.getElementById('skeletonLoader') || document.getElementById('loading');
                     if(loader) loader.classList.add('d-none');
+                    
                     renderCards(allData);
                 })
-                .catch(e => {
-                    console.error("Gagal load data:", e);
-                    document.getElementById('productContainer').innerHTML = "Gagal terhubung ke database.";
+                .catch(err => {
+                    console.error("Gagal Ambil Data:", err);
+                    const cont = document.getElementById('productContainer') || document.getElementById('content-container');
+                    if(cont) cont.innerHTML = `<p style="text-align:center; padding:20px;">Koneksi Terputus. Coba Refresh Halaman.</p>`;
                 });
 
             loadRunningText();
         });
 
-        // --- 3. RENDER KARTU JUALAN (SESUAI JSON KAMU) ---
+        // --- 3. RENDER KARTU (PASTI MUNCUL) ---
         function renderCards(data) {
-            const container = document.getElementById('productContainer');
+            // Cari wadah di mana saja dia berada
+            const container = document.getElementById('productContainer') || document.getElementById('content-container') || document.getElementById('main-content');
             if(!container) return;
             container.innerHTML = '';
             
             if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding:20px;">Belum ada jualan warga.</p>';
+                container.innerHTML = '<p style="text-align:center; padding:20px;">Data di Google Sheets Masih Kosong.</p>';
                 return;
             }
 
             data.forEach(item => {
-                // Mapping kolom sesuai JSON asli kamu
-                const namaToko = item["Nama Usaha / Brand"] || "Tanpa Nama";
-                const namaWarga = item["Nama"] || "Warga";
-                const alamatWarga = item["Alamat"] || "-";
-                const kategori = item["Kategori"] || "Umum";
-                const rt = item["RT"] || "-";
-                const wa = item["No WhatsApp"] || "";
-                
-                // Ambil Foto dari 'Link Foto Bersih' (yang sudah jadi thumbnail)
-                const fotoURL = item["Link Foto Bersih"] || "";
+                // Ambil data dengan Nama Kolom Persis atau Urutan Kolom (Anti-Typo)
+                const baris = Object.values(item);
+                const namaToko = item["Nama Usaha / Brand"] || baris[5] || "Tanpa Nama";
+                const namaWarga = item["Nama"] || baris[1] || "Warga";
+                const alamat = item["Alamat"] || baris[3] || "-";
+                const wa = item["No WhatsApp"] || baris[2] || "";
+                const foto = item["Link Foto Bersih"] || item["Link Foto"] || "";
 
                 const card = document.createElement('div');
-                card.className = 'card-product';
-                card.style = "display:flex; background:white; border-radius:12px; overflow:hidden; margin-bottom:15px; border:1px solid #eee; box-shadow:0 2px 4px rgba(0,0,0,0.05); cursor:pointer;";
+                card.style = "display:flex; background:white; border-radius:12px; overflow:hidden; margin-bottom:12px; border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,0.05); min-height:100px;";
                 
                 card.innerHTML = `
-                    <div style="width:100px; height:100px; flex-shrink:0;">
-                        ${fotoURL ? `<img src="${fotoURL}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:10px;">No Img</div>`}
+                    <div style="width:100px; height:100px; flex-shrink:0; background:#f8f9fa;">
+                        ${foto ? `<img src="${foto}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:10px;">No Img</div>`}
                     </div>
                     <div style="padding:10px; flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
                         <div>
-                            <span style="font-size:10px; background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-weight:bold;">${rt} • ${kategori}</span>
-                            <h3 style="font-size:14px; margin:4px 0; color:#333; font-weight:bold;">${namaToko}</h3>
-                            <p style="font-size:11px; color:#666; margin:0;">👤 ${namaWarga} | 📍 ${alamatWarga}</p>
+                            <h3 style="font-size:14px; margin:0 0 4px 0; color:#333; font-weight:bold;">${namaToko}</h3>
+                            <p style="font-size:11px; color:#666; margin:0;">👤 ${namaWarga}<br>📍 ${alamat}</p>
                         </div>
                         <div style="text-align:right;">
-                            <button onclick="window.open('https://wa.me/${formatWA(wa)}', '_blank')" style="background:#22c55e; color:white; border:none; padding:4px 12px; border-radius:8px; font-size:11px; font-weight:bold;">Chat</button>
+                            <button onclick="window.open('https://wa.me/${formatWA(wa)}', '_blank')" style="background:#22c55e; color:white; border:none; padding:4px 12px; border-radius:8px; font-size:11px; font-weight:bold; cursor:pointer;">Chat WA</button>
                         </div>
                     </div>`;
                 container.appendChild(card);
             });
         }
 
-        // --- 4. FORMAT WHATSAPP ---
+        // --- 4. FORMAT WA ---
         function formatWA(n) {
             if(!n) return '';
             let num = n.toString().replace(/[^0-9]/g, '');
             return num.startsWith('0') ? '62' + num.substring(1) : num;
         }
 
-        // --- 5. NAVIGASI & SEARCH (SIMPEL) ---
+        // --- 5. NAVIGASI ---
         window.switchTab = function(tab) {
             currentTab = tab;
-            document.getElementById('navHome').classList.toggle('active', tab === 'home');
-            document.getElementById('navInfo').classList.toggle('active', tab === 'info');
-            document.getElementById('productContainer').classList.toggle('d-none', tab !== 'home');
-            document.getElementById('infoContainer').classList.toggle('d-none', tab !== 'info');
-            // Jika butuh tab info, jalankan fetch khusus info di sini
-        }
-
-        window.filterToko = function() {
-            const filter = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.getElementsByClassName('card-product');
-            for (let card of cards) {
-                card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            const navH = document.getElementById('navHome');
+            const navI = document.getElementById('navInfo');
+            if(navH) navH.classList.toggle('active', tab === 'home');
+            if(navI) navI.classList.toggle('active', tab === 'info');
+            
+            const pc = document.getElementById('productContainer') || document.getElementById('content-container');
+            const ic = document.getElementById('infoContainer');
+            
+            if(pc) pc.classList.toggle('d-none', tab !== 'home');
+            if(ic) ic.classList.toggle('d-none', tab !== 'info');
+            
+            if(tab === 'info' && infoData.length === 0 && ic) {
+                ic.innerHTML = '<p style="text-align:center; padding:20px;">⏳ Memuat Info Warga...</p>';
+                fetch(scriptURL + '?type=info')
+                    .then(res => res.json())
+                    .then(data => {
+                        infoData = data;
+                        ic.innerHTML = '';
+                        data.forEach(inf => {
+                            ic.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee;"><b>${inf.judul || inf.Judul}</b><br><small>${inf.deskripsi || inf.Deskripsi}</small></div>`;
+                        });
+                    });
             }
         }
 
-        // --- 6. KONTAK & RUNNING ---
+        // --- 6. KONTAK & LAIN-LAIN ---
         window.bukaKontak = function() {
-            document.getElementById('modalKontak').style.display = 'flex';
-            const container = document.getElementById('list-kontak-container');
-            container.innerHTML = '<div style="padding:20px; text-align:center;">⏳ Memuat Kontak...</div>';
-            fetch(scriptURL + '?action=kontak')
-                .then(res => res.json())
-                .then(data => {
-                    container.innerHTML = '<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>Nomor Penting</b><button onclick="tutupKontak()" style="border:none; background:none;">&times;</button></div>';
-                    data.forEach(item => {
-                        container.innerHTML += `<div style="padding:15px; border-bottom:1px solid #f9f9f9; display:flex; justify-content:space-between; align-items:center;">
-                            <span><b>${item.Nama}</b><br><small>${item.Nomor}</small></span>
-                            <a href="https://wa.me/${formatWA(item.Nomor)}" style="background:#22c55e; color:white; padding:5px 12px; border-radius:20px; text-decoration:none; font-size:12px;">Chat</a>
-                        </div>`;
+            const mod = document.getElementById('modalKontak');
+            if(mod) mod.style.display = 'flex';
+            const cont = document.getElementById('list-kontak-container');
+            if(cont) {
+                cont.innerHTML = '<p style="text-align:center; padding:20px;">Memuat Kontak...</p>';
+                fetch(scriptURL + '?action=kontak').then(res => res.json()).then(data => {
+                    cont.innerHTML = '<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>Kontak Penting</b><button onclick="tutupKontak()" style="border:none; background:none; font-size:20px;">&times;</button></div>';
+                    data.forEach(k => {
+                        cont.innerHTML += `<div style="padding:15px; border-bottom:1px solid #f9f9f9; display:flex; justify-content:space-between;"><span>${k.Nama}</span><a href="https://wa.me/${formatWA(k.Nomor)}" style="color:green; text-decoration:none;">WA</a></div>`;
                     });
                 });
+            }
         }
-        window.tutupKontak = () => document.getElementById('modalKontak').style.display = 'none';
-        function loadRunningText() { fetch(scriptURL + '?action=running').then(res => res.json()).then(data => { if(data.text) document.getElementById('teks-berjalan').innerText = data.text; }); }
-        function preloadKontak() { console.log("Kontak Ready"); }
+        window.tutupKontak = () => {
+            const mod = document.getElementById('modalKontak');
+            if(mod) mod.style.display = 'none';
+        };
+        function loadRunningText() { 
+            const tb = document.getElementById('teks-berjalan');
+            if(tb) fetch(scriptURL + '?action=running').then(res => res.json()).then(data => { if(data.text) tb.innerText = data.text; }); 
+        }
+        function preloadKontak() { console.log("System Ready"); }
     </script>
     
     <style>
-        .btn-floating { position: fixed; right: 20px; z-index: 1000; padding: 12px 20px; border-radius: 50px; border: 2px solid white; color: white; font-weight: bold; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 14px; }
-        .btn-kontak { bottom: 85px; background: #0284c7; }
-        .btn-input { bottom: 25px; background: #dc2626; }
+        .btn-float { position: fixed; right: 20px; z-index: 1000; padding: 10px 18px; border-radius: 50px; color: white; font-weight: bold; text-decoration: none; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 13px; }
+        .btn-k { bottom: 85px; background: #0284c7; }
+        .btn-i { bottom: 25px; background: #dc2626; }
     </style>
 
-    <button onclick="bukaKontak()" class="btn-floating btn-kontak">📞 Nomor Penting</button>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" class="btn-floating btn-input">📝 Input Jualan</a>
+    <button onclick="bukaKontak()" class="btn-float btn-k">📞 Nomor Penting</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" class="btn-float btn-i">📝 Input Jualan</a>
 
     <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center;">
         <div style="background:white; width:90%; max-width:400px; border-radius:12px; max-height:85vh; overflow-y:auto;" id="list-kontak-container"></div>
@@ -409,6 +423,7 @@
 </body>
 </html>
     
+
 
 
 
