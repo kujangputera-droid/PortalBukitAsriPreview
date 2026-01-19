@@ -140,9 +140,13 @@
             </div>
             
             <div class="position-relative">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Cari...">
-            </div>
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" 
+           id="searchInput" 
+           class="search-input" 
+           onkeyup="filterToko()" 
+           placeholder="Cari produk atau nama toko...">
+</div>
             
             <div class="filter-scroll" id="dynamicFilterContainer">
                 <div class="filter-pill active">Semua</div>
@@ -619,9 +623,31 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
+        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX ANTI-ERROR) ---
+function filterToko() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const container = document.getElementById('daftar-jualan-container');
+    
+    // Ambil semua kartu jualan
+    const cards = container.children; 
+
+    for (let i = 0; i < cards.length; i++) {
+        const textValue = cards[i].textContent || cards[i].innerText;
+        
+        if (textValue.toLowerCase().indexOf(filter) > -1) {
+            // Munculkan kembali (pakai '' biar balik ke settingan awal CSS)
+            cards[i].style.setProperty('display', '', 'important');
+        } else {
+            // Sembunyikan total
+            cards[i].style.setProperty('display', 'none', 'important');
+        }
+    }
+}
 </script>
 </body>
 </html>
+
 
 
 
