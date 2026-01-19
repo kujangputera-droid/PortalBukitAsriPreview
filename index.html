@@ -141,11 +141,14 @@
             
             <div class="position-relative">
     <i class="fas fa-search search-icon"></i>
+   <div class="position-relative"> <i class="fas fa-search search-icon"></i>
     <input type="text" 
            id="searchInput" 
            class="search-input" 
            onkeyup="filterToko()" 
            placeholder="Cari produk atau nama toko...">
+    
+    <i class="fas fa-times-circle clear-icon" id="clearBtn" onclick="clearInput()" style="display:none; position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#cbd5e1; z-index:10;"></i>
 </div>
             
             <div class="filter-scroll" id="dynamicFilterContainer">
@@ -345,43 +348,53 @@
         }
 
         function renderInfo(data) {
-            const container = document.getElementById('infoContainer');
-            container.innerHTML = '';
-            
-            if (!data || data.length === 0) {
-                document.getElementById('emptyState').classList.remove('d-none');
-                return;
-            } else {
-                document.getElementById('emptyState').classList.add('d-none');
-            }
+    const container = document.getElementById('infoContainer');
+    container.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        document.getElementById('emptyState').classList.remove('d-none');
+        return;
+    } else {
+        document.getElementById('emptyState').classList.add('d-none');
+    }
 
-            data.forEach(item => {
-                // Mapping Badge Warna
-                let badgeClass = 'badge-umum';
-                const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
-                if (kat.includes('duka')) badgeClass = 'badge-duka';
-                else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
+    data.forEach(item => {
+        // --- KITA PAKAI NAMA KOLOM LANGSUNG DARI JSON LU ---
+        const judul = item["Judul Info"] || "Info Warga";
+        const deskripsi = item["Deskripsi"] || "";
+        const kategori = item["Kategori"] || "Umum";
+        const dari = item["Dari"] || "Admin";
+        const foto = item["Link Foto"] || "";
+        let tanggal = item["Timestamp"] || "";
+        if(tanggal.includes('T')) tanggal = tanggal.split('T')[0];
 
-                // Format Tanggal
-                let dateStr = item[KOLOM_INFO.TANGGAL] || '';
-                if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+        // Pilih class warna badge
+        let badgeClass = 'badge-umum';
+        const katLower = kategori.toLowerCase();
+        if (katLower.includes('duka')) badgeClass = 'badge-duka';
+        else if (katLower.includes('acara') || katLower.includes('kegiatan')) badgeClass = 'badge-acara';
 
-                const card = document.createElement('div');
-                card.className = 'card-info';
-                card.innerHTML = `
-                    <div class="info-header">
-                        <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
-                        <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
-                    </div>
-                    <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
-                    <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
-                    <div class="info-footer">
-                        <i class="fas fa-bullhorn text-primary"></i> Sumber: <strong>${item[KOLOM_INFO.DARI]}</strong>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+        const card = document.createElement('div');
+        card.className = 'card-info';
+        
+        // Cek kalau ada foto, kita tampilin di atas teks
+        let imgHTML = (foto && foto.startsWith('http')) ? `<img src="${foto}" style="width:100%; height:160px; object-fit:cover; border-radius:8px; margin-bottom:12px;">` : '';
+
+        card.innerHTML = `
+            ${imgHTML}
+            <div class="info-header">
+                <span class="info-badge ${badgeClass}">${kategori}</span>
+                <span class="info-date"><i class="far fa-calendar-alt"></i> ${tanggal}</span>
+            </div>
+            <h5 class="info-title" style="font-weight:700; margin-bottom:8px;">${judul}</h5>
+            <p class="info-desc" style="font-size:14px; line-height:1.6; color:#475569;">${deskripsi}</p>
+            <div class="info-footer" style="border-top:1px solid #f1f5f9; padding-top:10px; margin-top:10px; font-size:12px;">
+                <i class="fas fa-bullhorn text-primary"></i> Sumber: <strong>${dari}</strong>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
 
         // FUNCTION LAIN (SAMA)
         function checkAndShowVideo() {
@@ -413,7 +426,7 @@
                 
                 const card = document.createElement('div');
                 card.className = `card-product ${isVip ? 'vip' : ''}`;
-                card.onclick = (e) => { if(!e.target.closest('.btn-wa-mini')) showDetail(item, getAllImages(item[KOLOM.FOTO]), `Pemilik: ${item[KOLOM.OWNER]}`); };
+               card.onclick = (e) => { if(!e.target.closest('.btn-wa-mini')) showDetail(item, getAllImages(item[KOLOM.FOTO]), `Pemilik: ${item.Nama}`); };
                 card.innerHTML = `
                     ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
                     <div class="card-img-wrap">${imgHTML}</div>
@@ -423,7 +436,7 @@
                             <h3 class="prod-title">${item[KOLOM.NAMA_USAHA] || 'Tanpa Nama'}</h3>
                             
                             <p class="prod-desc" style="margin-bottom: 2px;">
-                                👤 Pemilik: ${item[KOLOM.OWNER] || '-'}
+                                👤 Pemilik: ${item.Nama || '-'}
                             </p>
                             
                             <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">
@@ -628,27 +641,36 @@ function filterToko() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase().trim();
     
-    // Pastikan ID Container-nya benar
+    // --- BARIS TAMBAHAN: Munculin/Sembunyiin tombol X ---
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+        clearBtn.style.display = input.value.length > 0 ? "block" : "none";
+    }
+    // ---------------------------------------------------
+
     const container = document.getElementById('productContainer');
     if (!container) return;
 
-    // AMBIL SEMUA KARTU DENGAN CLASS 'card-product'
     const cards = container.getElementsByClassName('card-product');
 
     for (let i = 0; i < cards.length; i++) {
-        // Ambil semua teks di dalam kartu
         const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
-        
-        // Logika Sembunyi/Tampilkan
         if (textValue.indexOf(filter) > -1) {
-            // Tampilkan (pakai flex/block tergantung CSS card-product kamu)
             cards[i].style.setProperty('display', '', 'important');
         } else {
-            // Sembunyikan
             cards[i].style.setProperty('display', 'none', 'important');
         }
     }
 }
+
+// TAMBAHKAN FUNGSI INI DI BAWAHNYA (Biar tombol X nya bisa dipake ngehapus)
+function clearInput() {
+    const input = document.getElementById('searchInput');
+    input.value = "";
+    filterToko(); // Panggil fungsi filter biar kartu muncul semua lagi
+    input.focus(); // Balikin kursor ke kotak ketik
+}
 </script>
 </body>
 </html>
+
