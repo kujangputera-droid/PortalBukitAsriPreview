@@ -267,92 +267,92 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- 1. KONFIGURASI UTAMA ---
         const WA_ADMIN = '6282260605301';
         const YOUTUBE_VIDEO_ID = 'e_04ZrNroTo'; 
         const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
 
-        document.getElementById('youtubeFrame').innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
-        document.getElementById('btnAdmin').href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
-
-        // MAPPING KOLOM (SESUAIKAN DENGAN SHEET BARU)
+        // MAPPING KOLOM
         const KOLOM = {
             NAMA_USAHA: 'Nama Usaha / Brand',
             KATEGORI: 'Kategori',
             FOTO: 'Foto Produk (berikan yang terbaik, Foto jangan blur)', 
             WA: 'No WhatsApp',
             RT: 'RT',
-            
-            // Alamat sudah benar 'Alamat', pastikan huruf A besar
             ALAMAT: 'Alamat', 
-            
-            // 👇 PERHATIKAN INI! SAYA TAMBAH SPASI DI BELAKANGNYA
             OWNER: 'Nama ',  
-            
-            STATUS: 'Status', 
-            PAKET: 'Paket',    
-            LANDING_PAGE: 'Link Landing Page'
+            PAKET: 'Paket'
         };
+
         const KOLOM_INFO = {
             TANGGAL: 'Timestamp',
             DARI: 'Dari',
-            
-            // 👇 INI PERBAIKANNYA! Ganti 'Judul Info' jadi 'Judul'
             JUDUL: 'Judul Info',    
-            
             KATEGORI: 'Kategori',
-            
-            // Kalau isi beritamu ada di kolom 'Info', ganti ini jadi 'Info'.
-            // Tapi kalau isinya di kolom 'Deskripsi', pakai 'Deskripsi'.
-            // Berdasarkan screenshot 'fafsf' muncul, kemungkinan ini sudah benar.
             DESKRIPSI: 'Deskripsi', 
-            
             FOTO: 'Link Foto' 
         };
 
-        let allData = []; // Data Jualan
-        let infoData = []; // Data Info
-        let currentTab = 'home'; // 'home' atau 'info'
+        let allData = []; 
+        let infoData = []; 
+        let currentTab = 'home';
 
-        function hideSkeleton() { document.getElementById('skeletonLoader').classList.add('d-none'); }
-        function showSkeleton() { document.getElementById('skeletonLoader').classList.remove('d-none'); }
+        // --- 2. FUNGSI ALAT BANTU ---
+        const hideSkeleton = () => { const s = document.getElementById('skeletonLoader'); if(s) s.classList.add('d-none'); };
+        const showSkeleton = () => { const s = document.getElementById('skeletonLoader'); if(s) s.classList.remove('d-none'); };
+        const formatWA = (n) => n ? (n.toString().startsWith('0') ? '62'+n.toString().substring(1) : n) : '';
+        const getAllImages = (raw) => { 
+            if(!raw) return []; 
+            return raw.toString().split(',').map(l => { 
+                let m = l.match(/id=([a-zA-Z0-9_-]{20,})/) || l.match(/\/d\/([a-zA-Z0-9_-]{20,})/); 
+                return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : null;
+            }).filter(Boolean); 
+        };
 
-        // LOAD DATA JUALAN (AWAL)
-        fetch(GAS_API_URL)
-            .then(response => response.json())
-            .then(data => {
-                allData = data;
-                hideSkeleton();
-                document.getElementById('productContainer').classList.remove('d-none');
-                renderFilter('home'); // Render Filter Jualan
-                renderCards(allData);
-                checkAndShowVideo();
-            });
+        // --- 3. LOGIKA STARTUP ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const yt = document.getElementById('youtubeFrame');
+            if(yt) yt.innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
+            
+            const btnA = document.getElementById('btnAdmin');
+            if(btnA) btnA.href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
+            
+            fetch(GAS_API_URL)
+                .then(res => res.json())
+                .then(data => {
+                    allData = data;
+                    hideSkeleton();
+                    const pc = document.getElementById('productContainer');
+                    if(pc) pc.classList.remove('d-none');
+                    renderCards(allData);
+                    renderFilter('home');
+                    checkAndShowVideo();
+                }).catch(e => hideSkeleton());
+            
+            loadRunningText();
+        });
 
-        // SWITCH TAB (LOGIC UTAMA)
+        // --- 4. NAVIGASI TAB ---
         function switchTab(tab) {
             currentTab = tab;
             const productCont = document.getElementById('productContainer');
             const infoCont = document.getElementById('infoContainer');
-            const navHome = document.getElementById('navHome');
-            const navInfo = document.getElementById('navInfo');
             const emptyState = document.getElementById('emptyState');
-
-            emptyState.classList.add('d-none');
+            
+            const nh = document.getElementById('navHome');
+            const ni = document.getElementById('navInfo');
+            if(nh) nh.classList.toggle('active', tab === 'home');
+            if(ni) ni.classList.toggle('active', tab === 'info');
+            if(emptyState) emptyState.classList.add('d-none');
 
             if (tab === 'home') {
-                navHome.classList.add('active');
-                navInfo.classList.remove('active');
-                productCont.classList.remove('d-none');
-                infoCont.classList.add('d-none');
-                renderFilter('home'); // Ganti Filter jadi Kategori Jualan
+                if(productCont) productCont.classList.remove('d-none');
+                if(infoCont) infoCont.classList.add('d-none');
                 renderCards(allData);
-            } else if (tab === 'info') {
-                navHome.classList.remove('active');
-                navInfo.classList.add('active');
-                productCont.classList.add('d-none');
-                infoCont.classList.remove('d-none');
-                
-                // Load Data Info kalau belum ada
+                renderFilter('home');
+            } else {
+                if(productCont) productCont.classList.add('d-none');
+                if(infoCont) infoCont.classList.remove('d-none');
                 if (infoData.length === 0) {
                     showSkeleton();
                     fetch(GAS_API_URL + '?type=info')
@@ -360,538 +360,174 @@
                         .then(data => {
                             infoData = data;
                             hideSkeleton();
-                            renderFilter('info'); // Ganti Filter jadi Sumber RT/RW
                             renderInfo(infoData);
-                        });
+                            renderFilter('info');
+                        }).catch(e => hideSkeleton());
                 } else {
-                    renderFilter('info');
                     renderInfo(infoData);
+                    renderFilter('info');
                 }
             }
         }
 
-        // RENDER FILTER DINAMIS
-        function renderFilter(type) {
-            const container = document.getElementById('dynamicFilterContainer');
-            container.innerHTML = '<div class="filter-pill active" onclick="filterData(\'Semua\', this)">Semua</div>';
-            
-            let sourceSet = new Set();
-            
-            if (type === 'home') {
-                // Filter berdasarkan Kategori Jualan
-                sourceSet = new Set(allData.map(d => d[KOLOM.KATEGORI]).filter(Boolean));
-            } else {
-                // Filter berdasarkan 'DARI' (Sumber Info)
-                sourceSet = new Set(infoData.map(d => d[KOLOM_INFO.DARI]).filter(Boolean));
-            }
-
-            sourceSet.forEach(item => {
-                const pill = document.createElement('div');
-                pill.className = 'filter-pill';
-                pill.innerText = item;
-                pill.onclick = function() { filterData(item, this); };
-                container.appendChild(pill);
-            });
-        }
-
-        // LOGIC FILTER KLIK
-        function filterData(filterValue, element) {
-            // Highlight Pill
-            document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            if (currentTab === 'home') {
-                if (filterValue === 'Semua') renderCards(allData);
-                else {
-                    const filtered = allData.filter(d => d[KOLOM.KATEGORI] === filterValue);
-                    renderCards(filtered);
-                }
-            } else {
-                if (filterValue === 'Semua') renderInfo(infoData);
-                else {
-                    const filtered = infoData.filter(d => d[KOLOM_INFO.DARI] === filterValue);
-                    renderInfo(filtered);
-                }
-            }
-        }
-
-        
-        function renderInfo(data) {
-    const container = document.getElementById('infoContainer');
-    container.innerHTML = '';
-    
-    if (!data || data.length === 0) {
-        document.getElementById('emptyState').classList.remove('d-none');
-        return;
-    } else {
-        document.getElementById('emptyState').classList.add('d-none');
-    }
-
-    data.forEach(item => {
-        let images = getAllImages(item[KOLOM_INFO.FOTO]);
-        let thumb = images[0];
-        // Gambar tetap muncul kalau ada, kalau gak ada dia gak ngerusak layout
-        let imgHTML = thumb ? `<div class="info-img-wrap"><img src="${thumb}" class="info-img" loading="lazy"></div>` : '';
-
-        let badgeClass = 'badge-umum';
-        const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
-        if (kat.includes('duka')) badgeClass = 'badge-duka';
-        else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
-
-        let dateStr = item[KOLOM_INFO.TANGGAL] || '';
-        if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
-
-        const pesanWA = encodeURIComponent(
-            `📢 *${item[KOLOM_INFO.JUDUL]}*\n🗓 ${dateStr}\n\n${item[KOLOM_INFO.DESKRIPSI]}\n\nSumber: ${item[KOLOM_INFO.DARI]}`
-        );
-
-        const card = document.createElement('div');
-        card.className = 'card-info';
-        card.onclick = (e) => { 
-            if(!e.target.closest('.btn-share-wa')) {
-                showDetail(item, images, `Sumber: ${item[KOLOM_INFO.DARI]}`, true); 
-            }
-        };
-
-        card.innerHTML = `
-            ${imgHTML}
-            <div style="padding: 12px; display: flex; flex-direction: column; flex-grow: 1;">
-                <div class="info-header" style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:5px;">
-                    <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
-                    <span class="text-muted">${dateStr}</span>
-                </div>
-                <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
-                <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
-                <div style="margin-top: auto; padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <small class="text-primary fw-bold">${item[KOLOM_INFO.DARI]}</small>
-                    <button class="btn-share-wa" onclick="window.open('https://wa.me/?text=${pesanWA}', '_blank')" style="border:none; background:#25d366; color:white; padding:4px 10px; border-radius:10px; font-size:0.7rem;">
-                        <i class="fab fa-whatsapp"></i> Share
-                    </button>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-    data.forEach(item => {
-        // 1. Ambil Foto (Pastikan KOLOM_INFO.FOTO sudah sesuai dengan urutan kolom di Sheets kamu)
-        let images = getAllImages(item[KOLOM_INFO.FOTO]);
-        let thumb = images[0];
-        // Kalau ada foto, buatkan elemen gambarnya, kalau nggak ada dikosongkan
-        let imgHTML = thumb ? `<div class="info-img-wrap"><img src="${thumb}" class="info-img" loading="lazy"></div>` : '';
-
-        // 2. Mapping Badge Warna
-        let badgeClass = 'badge-umum';
-        const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
-        if (kat.includes('duka')) badgeClass = 'badge-duka';
-        else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
-
-        // 3. Format Tanggal
-        let dateStr = item[KOLOM_INFO.TANGGAL] || '';
-        if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
-
-        // 4. Pesan WA
-        const pesanWA = encodeURIComponent(
-            `*INFO WARGA BUKIT ASRI*\n\n` +
-            `📢 *${item[KOLOM_INFO.JUDUL]}*\n` +
-            `🗓 Tgl: ${dateStr}\n` +
-            `📝 ${item[KOLOM_INFO.DESKRIPSI]}\n\n` +
-            `Sumber: ${item[KOLOM_INFO.DARI]}`
-        );
-
-        const card = document.createElement('div');
-        card.className = 'card-info';
-        
-        // Klik Detail (Kirim data foto juga ke showDetail)
-        card.onclick = (e) => { 
-            if(!e.target.closest('.btn-share-wa')) {
-                showDetail(item, images, `Sumber: ${item[KOLOM_INFO.DARI]}`, true); 
-            }
-        };
-
-        card.innerHTML = `
-            ${imgHTML}
-            <div class="info-body" style="padding: 15px;">
-                <div class="info-header">
-                    <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
-                    <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
-                </div>
-                <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
-                <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
-                <div class="info-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                    <span><i class="fas fa-bullhorn text-primary"></i> ${item[KOLOM_INFO.DARI]}</span>
-                    <button class="btn-share-wa" onclick="window.open('https://wa.me/?text=${pesanWA}', '_blank')" style="border:none; background:#25d366; color:white; padding:5px 12px; border-radius:12px; font-size:0.75rem;">
-                        <i class="fab fa-whatsapp"></i> Bagikan
-                    </button>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-    data.forEach(item => {
-        let badgeClass = 'badge-umum';
-        const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
-        if (kat.includes('duka')) badgeClass = 'badge-duka';
-        else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
-
-        let dateStr = item[KOLOM_INFO.TANGGAL] || '';
-        if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
-
-        // --- DATA UNTUK SHARE WA ---
-        const pesanWA = encodeURIComponent(
-            `*INFO WARGA BUKIT ASRI*\n\n` +
-            `📢 *${item[KOLOM_INFO.JUDUL]}*\n` +
-            `🗓 Tgl: ${dateStr}\n` +
-            `📝 ${item[KOLOM_INFO.DESKRIPSI]}\n\n` +
-            `Sumber: ${item[KOLOM_INFO.DARI]}`
-        );
-
-        const card = document.createElement('div');
-        card.className = 'card-info';
-        
-        // --- 1. BIAR BISA DIKLIK DETAIL ---
-        card.onclick = (e) => { 
-            // Kalau yang diklik tombol share, jangan buka detail
-            if(!e.target.closest('.btn-share-wa')) {
-                showDetail(item, null, `Sumber: ${item[KOLOM_INFO.DARI]}`, true); 
-            }
-        };
-
-        card.innerHTML = `
-            <div class="info-header">
-                <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
-                <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
-            </div>
-            <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
-            <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
-            <div class="info-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fas fa-bullhorn text-primary"></i> ${item[KOLOM_INFO.DARI]}</span>
-                <button class="btn-share-wa" onclick="window.open('https://wa.me/?text=${pesanWA}', '_blank')" style="border:none; background:#25d366; color:white; padding:4px 10px; border-radius:12px; font-size:0.75rem;">
-                    <i class="fab fa-whatsapp"></i> Bagikan
-                </button>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-        // FUNCTION LAIN (SAMA)
-        function checkAndShowVideo() {
-            const today = new Date().toISOString().split('T')[0];
-            const lastSeen = localStorage.getItem('warganet_video_seen');
-            if (lastSeen !== today) {
-                setTimeout(() => {
-                    new bootstrap.Modal(document.getElementById('videoModal')).show();
-                    localStorage.setItem('warganet_video_seen', today);
-                }, 1500);
-            }
-        }
-        function forceShowVideo() { new bootstrap.Modal(document.getElementById('videoModal')).show(); }
-        function formatWA(n) { return n ? (n.toString().startsWith('0') ? '62'+n.toString().substring(1) : n) : ''; }
-        function getAllImages(raw) { if(!raw) return []; return raw.toString().split(',').map(l => { let m = l.match(/id=([a-zA-Z0-9_-]{20,})/) || l.match(/\/d\/([a-zA-Z0-9_-]{20,})/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : null }).filter(Boolean); }
-        
+        // --- 5. RENDERER ---
         function renderCards(data) {
             const container = document.getElementById('productContainer');
+            if(!container) return;
             container.innerHTML = '';
-            if (data.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
-            else { document.getElementById('emptyState').classList.add('d-none'); }
-            
-            data.sort((a, b) => (b[KOLOM.PAKET]||'').toString().toLowerCase()==='vip' - (a[KOLOM.PAKET]||'').toString().toLowerCase()==='vip');
+            const es = document.getElementById('emptyState');
+            if (data.length === 0) { if(es) es.classList.remove('d-none'); return; }
+            if(es) es.classList.add('d-none');
 
             data.forEach(item => {
-                let thumb = getAllImages(item[KOLOM.FOTO])[0];
-                let imgHTML = thumb ? `<img src="${thumb}" class="card-img" loading="lazy">` : `<div class="no-img"><i class="fas fa-image"></i></div>`;
-                const isVip = (item[KOLOM.PAKET]||'').toString().toLowerCase() === 'vip';
+                let images = getAllImages(item[KOLOM.FOTO]);
+                let thumb = images[0];
+                let isVip = (item[KOLOM.PAKET]||'').toString().toLowerCase() === 'vip';
                 
                 const card = document.createElement('div');
                 card.className = `card-product ${isVip ? 'vip' : ''}`;
-                card.onclick = (e) => { if(!e.target.closest('.btn-wa-mini')) showDetail(item, getAllImages(item[KOLOM.FOTO]), `Pemilik: ${item[KOLOM.OWNER]}`); };
+                card.onclick = (e) => { if(!e.target.closest('.btn-wa-mini')) showDetail(item, images, `Pemilik: ${item[KOLOM.OWNER]}`); };
                 card.innerHTML = `
                     ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
-                    <div class="card-img-wrap">${imgHTML}</div>
+                    <div class="card-img-wrap">${thumb ? `<img src="${thumb}" class="card-img" loading="lazy">` : `<div class="no-img"><i class="fas fa-image"></i></div>`}</div>
                     <div class="card-body">
-                        <div>
-                            <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || '-'}</span>
-                            <h3 class="prod-title">${item[KOLOM.NAMA_USAHA] || 'Tanpa Nama'}</h3>
-                            
-                            <p class="prod-desc" style="margin-bottom: 2px;">
-                                👤 Pemilik: ${item[KOLOM.OWNER] || '-'}
-                            </p>
-                            
-                            <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">
-                                📍 ${item[KOLOM.ALAMAT] || '-'}
-                            </p>
-                        </div>
-                        <div class="action-row">
-                            <button class="btn-wa-mini" onclick="window.open('https://wa.me/${formatWA(item[KOLOM.WA])}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button>
+                        <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || '-'}</span>
+                        <h3 class="prod-title">${item[KOLOM.NAMA_USAHA] || 'Tanpa Nama'}</h3>
+                        <p class="prod-desc">👤 ${item[KOLOM.OWNER] || '-'}<br>📍 ${item[KOLOM.ALAMAT] || '-'}</p>
+                        <div class="action-row"><button class="btn-wa-mini" onclick="window.open('https://wa.me/${formatWA(item[KOLOM.WA])}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button></div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        function renderInfo(data) {
+            const container = document.getElementById('infoContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            const es = document.getElementById('emptyState');
+            if (!data || data.length === 0) { if(es) es.classList.remove('d-none'); return; }
+            if(es) es.classList.add('d-none');
+
+            data.forEach(item => {
+                let images = getAllImages(item[KOLOM_INFO.FOTO]);
+                let dateStr = (item[KOLOM_INFO.TANGGAL] || '').split('T')[0];
+                const pesanWA = encodeURIComponent(`📢 *${item[KOLOM_INFO.JUDUL]}*\n🗓 ${dateStr}\n\n${item[KOLOM_INFO.DESKRIPSI]}\n\nSumber: ${item[KOLOM_INFO.DARI]}`);
+
+                const card = document.createElement('div');
+                card.className = 'card-info';
+                card.onclick = (e) => { if(!e.target.closest('.btn-share-wa')) showDetail(item, images, `Sumber: ${item[KOLOM_INFO.DARI]}`, true); };
+                card.innerHTML = `
+                    ${images[0] ? `<div class="info-img-wrap"><img src="${images[0]}" class="info-img"></div>` : ''}
+                    <div style="padding:12px;">
+                        <div class="info-header"><span class="info-badge badge-umum">${item[KOLOM_INFO.KATEGORI]}</span><small>${dateStr}</small></div>
+                        <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
+                        <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                            <small class="text-primary fw-bold">${item[KOLOM_INFO.DARI]}</small>
+                            <button class="btn-share-wa" onclick="window.open('https://wa.me/?text=${pesanWA}', '_blank')" style="background:#25d366; color:white; border:none; padding:4px 10px; border-radius:10px; font-size:0.7rem;"><i class="fab fa-whatsapp"></i> Share</button>
                         </div>
                     </div>`;
                 container.appendChild(card);
             });
         }
-        
-        // Function Show Detail (Slider) tetap sama, saya singkat biar muat
+
+        // --- 6. DETAIL MODAL ---
         function showDetail(item, images, footerDesc, isInfo = false) {
-    // 1. Logika Slider Gambar (Hanya muncul kalau ada gambar)
-    let sliderHTML = "";
-    if (images && images.length > 0) {
-        sliderHTML = images.length > 1 
-            ? `<div id="c" class="carousel slide" data-bs-ride="carousel"><div class="carousel-inner">${images.map((img,i)=>`<div class="carousel-item ${i===0?'active':''}"><img src="${img}" class="d-block w-100"></div>`).join('')}</div><button class="carousel-control-prev" type="button" data-bs-target="#c" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button><button class="carousel-control-next" type="button" data-bs-target="#c" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button></div>` 
-            : `<img src="${images[0]}" class="d-block w-100">`;
-    }
-
-    // 2. Tentukan Judul & Tombol Aksi (Beda Jualan vs Info)
-    const title = isInfo ? item[KOLOM_INFO.JUDUL] : item[KOLOM.NAMA_USAHA];
-    const description = isInfo ? item[KOLOM_INFO.DESKRIPSI] : item[KOLOM.DESKRIPSI_USAHA] || footerDesc;
-    
-    // Tombol WA hanya untuk Jualan
-    const actionBtn = isInfo 
-        ? '' 
-        : `<a href="https://wa.me/${formatWA(item[KOLOM.WA])}" target="_blank" class="btn btn-success w-100 rounded-pill mt-3"><i class="fab fa-whatsapp"></i> Chat Penjual</a>`;
-
-    // 3. Masukkan ke Modal
-    document.getElementById('modalContent').innerHTML = `
-        <div class="position-relative">
-            <button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="z-index:10"></button>
-            ${sliderHTML}
-        </div>
-        <div class="p-4">
-            <h4 class="fw-bold">${title}</h4>
-            <hr>
-            <p style="white-space: pre-wrap;">${description}</p>
-            <p class="text-muted small">${isInfo ? '📍 Sumber: ' + item[KOLOM_INFO.DARI] : footerDesc}</p>
-            ${actionBtn}
-        </div>`;
-
-    new bootstrap.Modal(document.getElementById('detailModal')).show();
-}
-    </script>
-    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
-  📞 Nomor Penting
-</button>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
-  <span>📝 Input Info</span>
-</a>
-    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
-  <div style="background: white; width: 95%; max-width: 450px; padding: 0; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto;">
-    <div id="list-kontak-container">
-        <p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>
-    </div>
-  </div>
-</div>
-    <script>
- // SATU PINTU UNTUK SEMUA:
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
-
-  // ============================================================
-  // 1️⃣ LOGIKA UTAMA: JALANKAN SEMUA SAAT WEB DIBUKA
-  // ============================================================
-  document.addEventListener('DOMContentLoaded', function() {
-      console.log("Website siap! Memulai pengambilan data...");
-      loadInfoWarga();   // Ambil data untuk Beranda/Info
-      loadRunningText(); // Ambil Running Text
-      preloadKontak();   // Curi start data kontak
-  });
-
-  // ============================================================
-  // 2️⃣ BAGIAN INFO WARGA (FIX MASALAH UNDEFINED)
-  // ============================================================
-  function loadInfoWarga() {
-      // Pastikan ID container ini benar (biasanya 'content-container')
-      const container = document.getElementById('content-container'); 
-      
-      if(!container) return; // Kalau gak nemu wadahnya, stop.
-
-      container.innerHTML = '<div style="text-align:center; padding:20px;">⏳ Sedang memuat kabar warga...</div>';
-
-      fetch(scriptURL)
-      .then(response => response.json())
-      .then(data => {
-          container.innerHTML = ''; // Hapus loading
-
-          if (data.length === 0) {
-              container.innerHTML = '<p style="text-align:center;">Belum ada info.</p>';
-              return;
-          }
-
-          // --- LOGIKA RENDER KARTU ---
-          data.forEach(item => {
-              // Format Tanggal
-              let tanggal = new Date(item.timestamp).toLocaleDateString('id-ID');
-
-              // Cek Foto
-              let gambarHTML = '';
-              if (item.foto && item.foto !== "") {
-                  gambarHTML = `<img src="${item.foto}" alt="Foto" style="width:100%; height:200px; object-fit:cover; border-radius:8px 8px 0 0;">`;
-              }
-
-              // RENDER HTML KARTU
-              // Perhatikan: kita pakai item.judul, item.deskripsi (BUKAN ANGKA)
-              const card = `
-                  <div class="card" style="background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:20px; overflow:hidden; border:1px solid #f0f0f0;">
-                      ${gambarHTML}
-                      <div class="card-body" style="padding:15px;">
-                          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                              <span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${item.kategori}</span>
-                              <small style="color:#94a3b8;">${tanggal}</small>
-                          </div>
-                          <h3 style="margin:0 0 10px 0; font-size:18px; color:#1e293b; line-height:1.4;">${item.judul}</h3>
-                          <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:15px;">${item.deskripsi}</p>
-                          <div style="border-top:1px solid #f1f5f9; padding-top:10px; font-size:13px; color:#64748b;">
-                              📢 Info dari: <strong>${item.dari}</strong>
-                          </div>
-                      </div>
-                  </div>
-              `;
-              container.innerHTML += card;
-          });
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          container.innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data info.</p>';
-      });
-  }
-
-  // ============================================================
-  // 3️⃣ BAGIAN RUNNING TEXT
-  // ============================================================
-  function loadRunningText() {
-      fetch(`${scriptURL}?action=running`)
-      .then(response => response.json())
-      .then(data => {
-          if(data.text) {
-              const marquee = document.getElementById('teks-berjalan');
-              if(marquee) marquee.innerText = data.text;
-          }
-      });
-  }
-
-  // ============================================================
-  // 4️⃣ BAGIAN KONTAK (MODAL POPUP)
-  // ============================================================
-  // --- 1. Fungsi Buka Modal & Ambil Data ---
-  window.bukaKontak = function() { 
-      const container = document.getElementById('list-kontak-container');
-      document.getElementById('modalKontak').style.display = 'flex';
-      
-      container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
-      
-      fetch(`${scriptURL}?action=kontak&t=${new Date().getTime()}`)
-          .then(res => res.json())
-          .then(data => {
-              renderKontak(data);
-          })
-          .catch(err => {
-              console.error(err);
-              container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
-          });
-  }
-
-  window.tutupKontak = function() {
-      document.getElementById('modalKontak').style.display = 'none';
-  }
-
-  // --- 2. Fungsi Gambar List (Tanpa Grouping/Tanpa Header Ganda) ---
-  function renderKontak(data) {
-      const container = document.getElementById('list-kontak-container');
-      container.innerHTML = '';
-
-      if (!data || data.length === 0) {
-          container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
-          return;
-      }
-
-      // HEADER TUNGGAL & TOMBOL SILANG
-      const headerHtml = `
-          <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-              <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
-                  <i class="fas fa-phone-square-alt me-2"></i>Nomor Penting
-              </h6>
-              <button onclick="tutupKontak()" style="border: none; background: #f1f5f9; color: #64748b; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 0;">
-                  &times;
-              </button>
-          </div>
-      `;
-
-      // LIST NOMOR
-      const listHtml = `
-          <div class="list-group list-group-flush">
-              ${data.map(item => {
-                  let nama = item['Nama'] || 'Tanpa Nama';
-                  let rawNum = item['Nomor'] || '';
-                  let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
-                  if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
-
-                  let isEmergency = cleanNum.length <= 4;
-                  let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
-                  let icon = isEmergency ? 'fa-phone-alt' : 'fa-whatsapp';
-                  let btnColor = isEmergency ? '#ef4444' : '#22c55e';
-                  let btnText = isEmergency ? 'Panggil' : 'WA';
-
-                  return `
-                  <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 15px; border-bottom: 1px solid #f1f5f9; background:white;">
-                      <div style="flex: 1; padding-right: 10px;">
-                          <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${nama}</div>
-                          <div style="font-size:0.8rem; color:#64748b; margin-top: 2px;">${rawNum}</div>
-                      </div>
-                      <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px; white-space: nowrap;">
-                          <i class="fab ${icon}"></i> ${btnText}
-                      </a>
-                  </div>`;
-              }).join('')}
-          </div>
-      `;
-
-      container.innerHTML = headerHtml + listHtml;
-  }
-        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX DUA TAB) ---
-function filterToko() {
-    const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase().trim();
-    const clearBtn = document.getElementById('clearSearch');
-    const emptyState = document.getElementById('emptyState');
-    
-    // 1. Munculkan/Sembunyikan tombol silang
-    if(clearBtn) clearBtn.style.display = input.value.length > 0 ? "block" : "none";
-
-    // 2. Deteksi Tab Aktif
-    const isHome = document.getElementById('navHome').classList.contains('active');
-    const targetId = isHome ? 'productContainer' : 'infoContainer';
-    const container = document.getElementById(targetId);
-    
-    if (!container) return;
-
-    // 3. Ambil kartu berdasarkan tab-nya
-    // Kalau di Home cari 'card-product', kalau di Info cari 'card-info'
-    const cardClass = isHome ? 'card-product' : 'card-info';
-    const cards = container.getElementsByClassName(cardClass);
-
-    let hasMatch = false;
-
-    for (let i = 0; i < cards.length; i++) {
-        const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
-        
-        if (textValue.indexOf(filter) > -1) {
-            cards[i].style.setProperty('display', '', 'important');
-            hasMatch = true;
-        } else {
-            cards[i].style.setProperty('display', 'none', 'important');
+            let sliderHTML = images.length > 0 ? (images.length > 1 
+                ? `<div id="c" class="carousel slide" data-bs-ride="carousel"><div class="carousel-inner">${images.map((img,i)=>`<div class="carousel-item ${i===0?'active':''}"><img src="${img}" class="d-block w-100"></div>`).join('')}</div><button class="carousel-control-prev" type="button" data-bs-target="#c" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button><button class="carousel-control-next" type="button" data-bs-target="#c" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button></div>` 
+                : `<img src="${images[0]}" class="d-block w-100">`) : "";
+            
+            const mc = document.getElementById('modalContent');
+            if(!mc) return;
+            mc.innerHTML = `
+                <div class="position-relative"><button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="z-index:10"></button>${sliderHTML}</div>
+                <div class="p-4"><h4 class="fw-bold">${isInfo ? item[KOLOM_INFO.JUDUL] : item[KOLOM.NAMA_USAHA]}</h4><hr>
+                <p style="white-space:pre-wrap;">${isInfo ? item[KOLOM_INFO.DESKRIPSI] : item[KOLOM.DESKRIPSI_USAHA] || footerDesc}</p>
+                ${isInfo ? `<p class="small text-muted">Sumber: ${item[KOLOM_INFO.DARI]}</p>` : `<a href="https://wa.me/${formatWA(item[KOLOM.WA])}" target="_blank" class="btn btn-success w-100 rounded-pill">Chat Penjual</a>`}</div>`;
+            const dm = document.getElementById('detailModal');
+            if(dm) new bootstrap.Modal(dm).show();
         }
-    }
 
-    // 4. Tampilkan pesan "Data tidak ditemukan"
-    if (hasMatch || filter === "") {
-        emptyState.classList.add('d-none');
-    } else {
-        emptyState.classList.remove('d-none');
-    }
-}
-</script>
+        // --- 7. SEARCH & FILTER ---
+        function filterToko() {
+            const input = document.getElementById('searchInput');
+            if(!input) return;
+            const filter = input.value.toLowerCase().trim();
+            const container = document.getElementById(currentTab === 'home' ? 'productContainer' : 'infoContainer');
+            if(!container) return;
+            const cards = container.getElementsByClassName(currentTab === 'home' ? 'card-product' : 'card-info');
+            let hasMatch = false;
+
+            for (let card of cards) {
+                let match = card.textContent.toLowerCase().includes(filter);
+                card.style.setProperty('display', match ? '' : 'none', 'important');
+                if(match) hasMatch = true;
+            }
+            const es = document.getElementById('emptyState');
+            if(es) es.classList.toggle('d-none', hasMatch || filter === "");
+        }
+
+        function renderFilter(type) {
+            const container = document.getElementById('dynamicFilterContainer');
+            if(!container) return;
+            container.innerHTML = '<div class="filter-pill active" onclick="filterByPill(\'Semua\', this)">Semua</div>';
+            let set = new Set(type === 'home' ? allData.map(d => d[KOLOM.KATEGORI]) : infoData.map(d => d[KOLOM_INFO.DARI]));
+            set.forEach(val => { if(val) {
+                const p = document.createElement('div'); p.className = 'filter-pill'; p.innerText = val;
+                p.onclick = function() { filterByPill(val, this); }; container.appendChild(p);
+            }});
+        }
+
+        function filterByPill(val, el) {
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            if (currentTab === 'home') renderCards(val === 'Semua' ? allData : allData.filter(d => d[KOLOM.KATEGORI] === val));
+            else renderInfo(val === 'Semua' ? infoData : infoData.filter(d => d[KOLOM_INFO.DARI] === val));
+        }
+
+        // --- 8. FITUR TAMBAHAN ---
+        function loadRunningText() {
+            fetch(`${GAS_API_URL}?action=running`).then(res => res.json()).then(data => {
+                const tb = document.getElementById('teks-berjalan');
+                if(data.text && tb) tb.innerText = data.text;
+            }).catch(e => console.log("Skip running text"));
+        }
+
+        window.bukaKontak = function() {
+            const mk = document.getElementById('modalKontak');
+            if(mk) mk.style.display = 'flex';
+            fetch(`${GAS_API_URL}?action=kontak`).then(res => res.json()).then(data => {
+                let html = `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background:white;"><strong>Nomor Penting</strong><button onclick="tutupKontak()" style="border:none; background:none; font-size:20px;">&times;</button></div>`;
+                data.forEach(item => {
+                    let num = formatWA(item['Nomor']);
+                    html += `<div style="padding:15px; border-bottom:1px solid #f9f9f9; display:flex; justify-content:space-between; align-items:center; background:white;">
+                        <span>${item['Nama']}</span><a href="https://wa.me/${num}" target="_blank" style="background:#22c55e; color:white; padding:5px 15px; border-radius:15px; text-decoration:none; font-size:12px;">Chat</a></div>`;
+                });
+                const lkc = document.getElementById('list-kontak-container');
+                if(lkc) lkc.innerHTML = html;
+            });
+        }
+        window.tutupKontak = () => { const mk = document.getElementById('modalKontak'); if(mk) mk.style.display = 'none'; };
+        function checkAndShowVideo() {
+            const today = new Date().toISOString().split('T')[0];
+            if (localStorage.getItem('warganet_video_seen') !== today) {
+                const vm = document.getElementById('videoModal');
+                if(vm) setTimeout(() => { new bootstrap.Modal(vm).show(); localStorage.setItem('warganet_video_seen', today); }, 1500);
+            }
+        }
+        function preloadKontak() { console.log("Kontak Ready"); }
+    </script>
+
+    <button onclick="bukaKontak()" style="position:fixed; bottom:80px; right:20px; background:#0284c7; color:white; padding:12px 20px; border-radius:50px; border:2px solid white; z-index:9999; cursor:pointer; font-weight:bold;">📞 Kontak</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position:fixed; bottom:20px; right:20px; background:#dc2626; color:white; padding:12px 24px; border-radius:50px; border:2px solid white; text-decoration:none; z-index:9999; font-weight:bold;">📝 Input Info</a>
+
+    <div id="modalKontak" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center;">
+        <div style="background:white; width:90%; max-width:400px; border-radius:12px; max-height:80vh; overflow-y:auto;" id="list-kontak-container"></div>
+    </div>
 </body>
 </html>
+    
+
 
 
 
