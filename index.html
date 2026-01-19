@@ -15,29 +15,58 @@
         /* HEADER */
         .sticky-header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding-top: 10px; padding-bottom: 10px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
         .running-text-wrap { background: #EFF6FF; color: var(--primary); font-size: 0.8rem; padding: 6px 0; overflow: hidden; white-space: nowrap; border-bottom: 1px solid #DBEAFE; }
-        .search-input { border-radius: 50px; border: 1px solid #E2E8F0; background: #F1F5F9; padding: 12px 40px 12px 45px !important; width: 100%; }
+        .search-input { border-radius: 50px; border: 1px solid #E2E8F0; background: #F1F5F9; padding: 12px 20px 12px 45px; width: 100%; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94A3B8; }
-        
-        /* TOMBOL X SEARCH */
-        .clear-icon { font-size: 1.1rem; transition: all 0.2s ease; opacity: 0.6; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #cbd5e1; display: none; }
-        .clear-icon:hover { color: #ef4444 !important; opacity: 1; }
 
         /* FILTER */
         .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
         .filter-pill { white-space: nowrap; padding: 6px 14px; border-radius: 50px; background: #fff; border: 1px solid #E2E8F0; color: #64748B; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
         .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         
-        /* CARD PRODUK - KITA KUNCI UI SUPAYA SAMA PERSIS MASTER */
-        .card-product { background: var(--card-bg); border-radius: 16px; border: none; overflow: hidden; margin-bottom: 15px; display: flex; height: 180px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; cursor: pointer; }
+        /* CARD PRODUK */
+        .card-product { 
+            background: var(--card-bg); 
+            border-radius: 16px; 
+            border: none; 
+            overflow: hidden; 
+            margin-bottom: 15px; 
+            display: flex; 
+            
+            /* KITA KUNCI LAGI TINGGINYA JADI 180px (Biar seragam) */
+            height: 180px; 
+            
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+            position: relative; 
+            cursor: pointer; 
+        }
         .card-product.vip { background: linear-gradient(to right, #FFFBEB, #FFFFFF); border: 1px solid #FCD34D; }
         .vip-badge { position: absolute; top: 0; left: 0; background: var(--gold); color: #713F12; font-size: 0.6rem; font-weight: bold; padding: 2px 8px; border-bottom-right-radius: 8px; z-index: 2; }
-        .card-img-wrap { width: 130px; height: 100%; flex-shrink: 0; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-img-wrap { 
+            width: 130px; 
+            height: 100%; /* Full tinggi */
+            flex-shrink: 0; 
+            background: #f1f5f9; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
         .card-img { width: 100%; height: 100%; object-fit: cover; } 
         .no-img { width: 100%; height: 100%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 2rem; }
         .card-body { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; width: 100%; }
         .meta-tag { font-size: 0.7rem; color: var(--primary); background: #EFF6FF; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 4px; }
         .prod-title { font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.3; color: #0F172A; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .prod-desc { font-size: 0.8rem; color: #64748B; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .prod-desc {
+            font-size: 0.8rem;
+            color: #64748B;
+            margin-top: 2px;
+            
+            /* Potong teks kalau lebih dari 1 baris */
+            display: -webkit-box;
+            -webkit-line-clamp: 1; 
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
         .btn-wa-mini { background: var(--wa-color); color: white; border-radius: 50px; padding: 5px 12px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 4px; border: none; }
         
         /* CARD INFO WARGA */
@@ -85,13 +114,31 @@
         .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 2px; }
         .nav-item.active { color: var(--primary); }
         .video-icon-small { font-size: 1.2rem; color: #64748B; cursor: pointer; }
-        .d-none { display: none !important; }
+        /* --- BUMBU BIAR TOMBOL X RAPI --- */
+.clear-icon {
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.clear-icon:hover {
+    color: #ef4444 !important; /* Berubah merah pas disentuh */
+    opacity: 1;
+}
+
+.search-input {
+    padding-right: 40px !important; /* Kasih ruang biar teks gak nabrak tombol X */
+}
     </style>
 </head>
 <body>
 
     <div class="running-text-wrap">
-        <marquee id="teks-berjalan" scrollamount="5"></marquee>
+    <marquee id="teks-berjalan" scrollamount="5">
+      
+    </marquee>
+        
+</div>
     </div>
 
     <div class="sticky-header">
@@ -108,13 +155,20 @@
             </div>
             
             <div class="position-relative">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" onkeyup="filterToko()" placeholder="Cari produk atau nama toko...">
-                <i class="fas fa-times-circle clear-icon" id="clearSearch" onclick="clearInput()"></i>
-            </div>
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" 
+           id="searchInput" 
+           class="search-input" 
+           onkeyup="filterToko()" 
+           placeholder="Cari produk atau nama toko...">
+    <i class="fas fa-times-circle clear-icon" id="clearSearch" onclick="clearInput()" style="display:none; position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#cbd5e1;"></i>
+</div>
             
             <div class="filter-scroll" id="dynamicFilterContainer">
-                </div>
+                <div class="filter-pill active">Semua</div>
+                <div class="filter-pill skeleton-anim" style="width: 60px; border:none;"></div>
+                <div class="filter-pill skeleton-anim" style="width: 80px; border:none;"></div>
+            </div>
         </div>
     </div>
 
@@ -128,13 +182,6 @@
         <div id="infoContainer" class="d-none"></div>
         <div id="emptyState" class="text-center py-5 d-none"><p class="text-muted">Data tidak ditemukan.</p></div>
     </div>
-
-    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
-        📞 Nomor Penting
-    </button>
-    <a href="https://forms.gle/Q9GRfaWzo2YByhWn8" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
-        <span>📝 Input Info</span>
-    </a>
 
     <nav class="bottom-nav">
         <div class="nav-item active" id="navHome" onclick="switchTab('home')"><i class="fas fa-home"></i>Beranda</div>
@@ -163,12 +210,6 @@
         </div>
     </div>
 
-    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
-        <div style="background: white; width: 95%; max-width: 450px; padding: 0; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto;">
-            <div id="list-kontak-container"><p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p></div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const WA_ADMIN = '6282260605301';
@@ -178,56 +219,61 @@
         document.getElementById('youtubeFrame').innerHTML = `<iframe src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?rel=0" allowfullscreen></iframe>`;
         document.getElementById('btnAdmin').href = `https://wa.me/${WA_ADMIN}?text=Halo+Admin+WargaNet...`;
 
-        // === CONFIG KOLOM (BIAR AMAN SAMA VERSI LAMA & BARU) ===
+        // MAPPING KOLOM (SESUAIKAN DENGAN SHEET BARU)
         const KOLOM = {
             NAMA_USAHA: 'Nama Usaha / Brand',
             KATEGORI: 'Kategori',
-            FOTO: 'Link Foto Bersih', // Prioritas Utama
-            FOTO_ALT: 'Link Foto',    // Cadangan
+            FOTO: 'Foto Produk (berikan yang terbaik, Foto jangan blur)', 
             WA: 'No WhatsApp',
             RT: 'RT',
+            
+            // Alamat sudah benar 'Alamat', pastikan huruf A besar
             ALAMAT: 'Alamat', 
-            OWNER: 'Nama ', // Ada spasi
-            OWNER_ALT: 'Nama', // Tanpa spasi
+            
+            // 👇 PERHATIKAN INI! SAYA TAMBAH SPASI DI BELAKANGNYA
+            OWNER: 'Nama ',  
+            
             STATUS: 'Status', 
-            PAKET: 'Paket'
+            PAKET: 'Paket',    
+            LANDING_PAGE: 'Link Landing Page'
+        };
+        const KOLOM_INFO = {
+            TANGGAL: 'Timestamp',
+            DARI: 'Dari',
+            
+            // 👇 INI PERBAIKANNYA! Ganti 'Judul Info' jadi 'Judul'
+            JUDUL: 'Judul Info',    
+            
+            KATEGORI: 'Kategori',
+            
+            // Kalau isi beritamu ada di kolom 'Info', ganti ini jadi 'Info'.
+            // Tapi kalau isinya di kolom 'Deskripsi', pakai 'Deskripsi'.
+            // Berdasarkan screenshot 'fafsf' muncul, kemungkinan ini sudah benar.
+            DESKRIPSI: 'Deskripsi', 
+            
+            FOTO: 'Link Foto' 
         };
 
-        // === VARIABLES ===
-        let allData = [];
-        let infoData = [];
-        let currentTab = 'home';
+        let allData = []; // Data Jualan
+        let infoData = []; // Data Info
+        let currentTab = 'home'; // 'home' atau 'info'
 
-        // --- 1. INISIALISASI (SINGLE ENGINE) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("System Start...");
-            
-            // Ambil Data Jualan
-            fetch(GAS_API_URL)
-                .then(response => response.json())
-                .then(data => {
-                    allData = data;
-                    document.getElementById('skeletonLoader').classList.add('d-none');
-                    document.getElementById('productContainer').classList.remove('d-none');
-                    renderFilter('home');
-                    renderCards(allData);
-                    checkAndShowVideo();
-                })
-                .catch(e => console.log("Gagal ambil data jualan"));
+        function hideSkeleton() { document.getElementById('skeletonLoader').classList.add('d-none'); }
+        function showSkeleton() { document.getElementById('skeletonLoader').classList.remove('d-none'); }
 
-            // Ambil Data Info (Background Fetch)
-            fetch(GAS_API_URL + '?type=info').then(res => res.json()).then(data => { infoData = data; });
-            
-            // Ambil Running Text
-            fetch(GAS_API_URL + '?action=running').then(res => res.json()).then(d => { 
-                if(d.text) document.getElementById('teks-berjalan').innerText = d.text; 
+        // LOAD DATA JUALAN (AWAL)
+        fetch(GAS_API_URL)
+            .then(response => response.json())
+            .then(data => {
+                allData = data;
+                hideSkeleton();
+                document.getElementById('productContainer').classList.remove('d-none');
+                renderFilter('home'); // Render Filter Jualan
+                renderCards(allData);
+                checkAndShowVideo();
             });
 
-            // Preload Kontak
-            fetch(GAS_API_URL + '?action=kontak').then(res => res.json());
-        });
-
-        // --- 2. LOGIC TAB ---
+        // SWITCH TAB (LOGIC UTAMA)
         function switchTab(tab) {
             currentTab = tab;
             const productCont = document.getElementById('productContainer');
@@ -239,21 +285,29 @@
             emptyState.classList.add('d-none');
 
             if (tab === 'home') {
-                navHome.classList.add('active'); navInfo.classList.remove('active');
-                productCont.classList.remove('d-none'); infoCont.classList.add('d-none');
-                renderFilter('home');
+                navHome.classList.add('active');
+                navInfo.classList.remove('active');
+                productCont.classList.remove('d-none');
+                infoCont.classList.add('d-none');
+                renderFilter('home'); // Ganti Filter jadi Kategori Jualan
                 renderCards(allData);
             } else if (tab === 'info') {
-                navHome.classList.remove('active'); navInfo.classList.add('active');
-                productCont.classList.add('d-none'); infoCont.classList.remove('d-none');
+                navHome.classList.remove('active');
+                navInfo.classList.add('active');
+                productCont.classList.add('d-none');
+                infoCont.classList.remove('d-none');
                 
+                // Load Data Info kalau belum ada
                 if (infoData.length === 0) {
-                    infoCont.innerHTML = '<p class="text-center py-5">⏳ Memuat Info...</p>';
-                    fetch(GAS_API_URL + '?type=info').then(res => res.json()).then(data => {
-                        infoData = data;
-                        renderFilter('info');
-                        renderInfo(infoData);
-                    });
+                    showSkeleton();
+                    fetch(GAS_API_URL + '?type=info')
+                        .then(res => res.json())
+                        .then(data => {
+                            infoData = data;
+                            hideSkeleton();
+                            renderFilter('info'); // Ganti Filter jadi Sumber RT/RW
+                            renderInfo(infoData);
+                        });
                 } else {
                     renderFilter('info');
                     renderInfo(infoData);
@@ -261,114 +315,19 @@
             }
         }
 
-        // --- 3. RENDER KARTU JUALAN ---
-        function renderCards(data) {
-            const container = document.getElementById('productContainer');
-            container.innerHTML = '';
-            
-            // Filter Data Kosong
-            const validData = data.filter(item => item[KOLOM.NAMA_USAHA] && item[KOLOM.NAMA_USAHA].trim() !== "");
-            
-            if (validData.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
-            else { document.getElementById('emptyState').classList.add('d-none'); }
-            
-            validData.sort((a, b) => (b[KOLOM.PAKET]||'').toString().toLowerCase()==='vip' - (a[KOLOM.PAKET]||'').toString().toLowerCase()==='vip');
-
-            validData.forEach(item => {
-                // FALLBACK IMAGE & NAMA
-                let rawFoto = item[KOLOM.FOTO] || item[KOLOM.FOTO_ALT];
-                let thumb = getAllImages(rawFoto)[0];
-                let imgHTML = thumb ? `<img src="${thumb}" class="card-img" loading="lazy">` : `<div class="no-img"><i class="fas fa-image"></i></div>`;
-                
-                let namaOwner = item[KOLOM.OWNER] || item[KOLOM.OWNER_ALT] || '-';
-                const isVip = (item[KOLOM.PAKET]||'').toString().toLowerCase() === 'vip';
-                
-                const card = document.createElement('div');
-                card.className = `card-product ${isVip ? 'vip' : ''}`;
-                
-                // Klik Kartu -> Slider
-                card.onclick = (e) => { 
-                    if(!e.target.closest('.btn-wa-mini')) {
-                        showDetail(item, getAllImages(rawFoto), `Pemilik: ${namaOwner}`); 
-                    }
-                };
-
-                card.innerHTML = `
-                    ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
-                    <div class="card-img-wrap">${imgHTML}</div>
-                    <div class="card-body">
-                        <div>
-                            <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || 'UMKM'}</span>
-                            <h3 class="prod-title">${item[KOLOM.NAMA_USAHA]}</h3>
-                            <p class="prod-desc" style="margin-bottom: 2px;">👤 Pemilik: ${namaOwner}</p>
-                            <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">📍 ${item[KOLOM.ALAMAT] || '-'}</p>
-                        </div>
-                        <div class="action-row">
-                            <button class="btn-wa-mini"><i class="fab fa-whatsapp"></i> Chat</button>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        // --- 4. RENDER INFO WARGA (AUTO-DETECT KEY) ---
-        function renderInfo(data) {
-            const container = document.getElementById('infoContainer');
-            container.innerHTML = '';
-            
-            if (!data || data.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
-            else { document.getElementById('emptyState').classList.add('d-none'); }
-
-            data.forEach(item => {
-                // AUTO DETECT KEYS (Biar gak undefined)
-                const judul = item["Judul"] || item["Judul Info"] || item["Info"] || "Info Warga";
-                const deskripsi = item["Deskripsi"] || item["Isi"] || item["Keterangan"] || "";
-                const dari = item["Dari"] || item["Sumber"] || "Admin";
-                const kategori = item["Kategori"] || "Umum";
-                const fotoInfo = item["Link Foto"] || item["Foto"] || "";
-                const tanggalRaw = item["Timestamp"] || item["Tanggal"] || "";
-
-                let badgeClass = 'badge-umum';
-                if (kategori.toLowerCase().includes('duka')) badgeClass = 'badge-duka';
-                else if (kategori.toLowerCase().includes('acara')) badgeClass = 'badge-acara';
-
-                let dateStr = tanggalRaw;
-                if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
-
-                const card = document.createElement('div');
-                card.className = 'card-info';
-                
-                let imgHTML = '';
-                if(fotoInfo) {
-                    imgHTML = `<img src="${fotoInfo}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:10px;">`;
-                }
-
-                card.innerHTML = `
-                    ${imgHTML}
-                    <div class="info-header">
-                        <span class="info-badge ${badgeClass}">${kategori}</span>
-                        <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
-                    </div>
-                    <h5 class="info-title">${judul}</h5>
-                    <p class="info-desc">${deskripsi}</p>
-                    <div class="info-footer">
-                        <i class="fas fa-bullhorn text-primary"></i> Sumber: <strong>${dari}</strong>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        // --- 5. LOGIC FILTER ---
+        // RENDER FILTER DINAMIS
         function renderFilter(type) {
             const container = document.getElementById('dynamicFilterContainer');
             container.innerHTML = '<div class="filter-pill active" onclick="filterData(\'Semua\', this)">Semua</div>';
             
             let sourceSet = new Set();
+            
             if (type === 'home') {
+                // Filter berdasarkan Kategori Jualan
                 sourceSet = new Set(allData.map(d => d[KOLOM.KATEGORI]).filter(Boolean));
             } else {
-                // Auto Detect Key Kategori Info
-                sourceSet = new Set(infoData.map(d => d["Kategori"] || d["Dari"]).filter(Boolean));
+                // Filter berdasarkan 'DARI' (Sumber Info)
+                sourceSet = new Set(infoData.map(d => d[KOLOM_INFO.DARI]).filter(Boolean));
             }
 
             sourceSet.forEach(item => {
@@ -380,79 +339,355 @@
             });
         }
 
+        // LOGIC FILTER KLIK
         function filterData(filterValue, element) {
+            // Highlight Pill
             document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
 
             if (currentTab === 'home') {
                 if (filterValue === 'Semua') renderCards(allData);
-                else renderCards(allData.filter(d => d[KOLOM.KATEGORI] === filterValue));
+                else {
+                    const filtered = allData.filter(d => d[KOLOM.KATEGORI] === filterValue);
+                    renderCards(filtered);
+                }
             } else {
                 if (filterValue === 'Semua') renderInfo(infoData);
-                else renderInfo(infoData.filter(d => (d["Kategori"] || d["Dari"]) === filterValue));
+                else {
+                    const filtered = infoData.filter(d => d[KOLOM_INFO.DARI] === filterValue);
+                    renderInfo(filtered);
+                }
             }
         }
 
-        // --- 6. LOGIC KONTAK (MODAL) ---
-        window.bukaKontak = function() {
-            document.getElementById('modalKontak').style.display = 'flex';
-            const container = document.getElementById('list-kontak-container');
-            container.innerHTML = '<p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>';
+        function renderInfo(data) {
+            const container = document.getElementById('infoContainer');
+            container.innerHTML = '';
             
-            fetch(GAS_API_URL + '?action=kontak').then(res => res.json()).then(data => {
-                if(!data || data.length === 0) { container.innerHTML = '<p class="text-center p-3">Data kosong.</p>'; return; }
-                
-                const headerHtml = `<div class="sticky-top bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-primary"><i class="fas fa-phone-square-alt me-2"></i>Nomor Penting</h6>
-                    <button onclick="tutupKontak()" class="btn-close"></button>
-                </div>`;
-                
-                const listHtml = data.map(item => {
-                    let num = item['Nomor'].toString().replace(/[^0-9]/g, '');
-                    if(num.startsWith('0')) num = '62' + num.substring(1);
-                    return `<div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
-                        <div><div class="fw-bold">${item['Nama']}</div><div class="small text-muted">${item['Nomor']}</div></div>
-                        <a href="https://wa.me/${num}" class="btn btn-success btn-sm rounded-pill"><i class="fab fa-whatsapp"></i> WA</a>
-                    </div>`;
-                }).join('');
-                
-                container.innerHTML = headerHtml + listHtml;
+            if (!data || data.length === 0) {
+                document.getElementById('emptyState').classList.remove('d-none');
+                return;
+            } else {
+                document.getElementById('emptyState').classList.add('d-none');
+            }
+
+            data.forEach(item => {
+                // Mapping Badge Warna
+                let badgeClass = 'badge-umum';
+                const kat = (item[KOLOM_INFO.KATEGORI] || '').toLowerCase();
+                if (kat.includes('duka')) badgeClass = 'badge-duka';
+                else if (kat.includes('acara') || kat.includes('rapat')) badgeClass = 'badge-acara';
+
+                // Format Tanggal
+                let dateStr = item[KOLOM_INFO.TANGGAL] || '';
+                if(dateStr.includes('T')) dateStr = dateStr.split('T')[0];
+
+                const card = document.createElement('div');
+                card.className = 'card-info';
+                card.innerHTML = `
+                    <div class="info-header">
+                        <span class="info-badge ${badgeClass}">${item[KOLOM_INFO.KATEGORI]}</span>
+                        <span class="info-date"><i class="far fa-calendar-alt"></i> ${dateStr}</span>
+                    </div>
+                    <h5 class="info-title">${item[KOLOM_INFO.JUDUL]}</h5>
+                    <p class="info-desc">${item[KOLOM_INFO.DESKRIPSI]}</p>
+                    <div class="info-footer">
+                        <i class="fas fa-bullhorn text-primary"></i> Sumber: <strong>${item[KOLOM_INFO.DARI]}</strong>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
-        window.tutupKontak = () => { document.getElementById('modalKontak').style.display = 'none'; }
 
-        // --- 7. HELPER FUNCTIONS ---
+        // FUNCTION LAIN (SAMA)
+        function checkAndShowVideo() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastSeen = localStorage.getItem('warganet_video_seen');
+            if (lastSeen !== today) {
+                setTimeout(() => {
+                    new bootstrap.Modal(document.getElementById('videoModal')).show();
+                    localStorage.setItem('warganet_video_seen', today);
+                }, 1500);
+            }
+        }
+        function forceShowVideo() { new bootstrap.Modal(document.getElementById('videoModal')).show(); }
+        function formatWA(n) { return n ? (n.toString().startsWith('0') ? '62'+n.toString().substring(1) : n) : ''; }
+        function getAllImages(raw) { if(!raw) return []; return raw.toString().split(',').map(l => { let m = l.match(/id=([a-zA-Z0-9_-]{20,})/) || l.match(/\/d\/([a-zA-Z0-9_-]{20,})/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : null }).filter(Boolean); }
+        
+        function renderCards(data) {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = '';
+            if (data.length === 0) { document.getElementById('emptyState').classList.remove('d-none'); return; }
+            else { document.getElementById('emptyState').classList.add('d-none'); }
+            
+            data.sort((a, b) => (b[KOLOM.PAKET]||'').toString().toLowerCase()==='vip' - (a[KOLOM.PAKET]||'').toString().toLowerCase()==='vip');
+
+            data.forEach(item => {
+                let thumb = getAllImages(item[KOLOM.FOTO])[0];
+                let imgHTML = thumb ? `<img src="${thumb}" class="card-img" loading="lazy">` : `<div class="no-img"><i class="fas fa-image"></i></div>`;
+                const isVip = (item[KOLOM.PAKET]||'').toString().toLowerCase() === 'vip';
+                
+                const card = document.createElement('div');
+                card.className = `card-product ${isVip ? 'vip' : ''}`;
+                card.onclick = (e) => { if(!e.target.closest('.btn-wa-mini')) showDetail(item, getAllImages(item[KOLOM.FOTO]), `Pemilik: ${item[KOLOM.OWNER]}`); };
+                card.innerHTML = `
+                    ${isVip ? '<div class="vip-badge"><i class="fas fa-crown"></i> TOP</div>' : ''}
+                    <div class="card-img-wrap">${imgHTML}</div>
+                    <div class="card-body">
+                        <div>
+                            <span class="meta-tag">${item[KOLOM.RT] || '-'} • ${item[KOLOM.KATEGORI] || '-'}</span>
+                            <h3 class="prod-title">${item[KOLOM.NAMA_USAHA] || 'Tanpa Nama'}</h3>
+                            
+                            <p class="prod-desc" style="margin-bottom: 2px;">
+                                👤 Pemilik: ${item[KOLOM.OWNER] || '-'}
+                            </p>
+                            
+                            <p class="prod-desc" style="font-size: 0.75rem; color: #64748b; margin-top: 0;">
+                                📍 ${item[KOLOM.ALAMAT] || '-'}
+                            </p>
+                        </div>
+                        <div class="action-row">
+                            <button class="btn-wa-mini" onclick="window.open('https://wa.me/${formatWA(item[KOLOM.WA])}', '_blank')"><i class="fab fa-whatsapp"></i> Chat</button>
+                        </div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+        
+        // Function Show Detail (Slider) tetap sama, saya singkat biar muat
         function showDetail(item, images, desc) {
             let sliderHTML = images.length ? (images.length > 1 ? `<div id="c" class="carousel slide" data-bs-ride="carousel"><div class="carousel-inner">${images.map((img,i)=>`<div class="carousel-item ${i===0?'active':''}"><img src="${img}" class="d-block w-100"></div>`).join('')}</div><button class="carousel-control-prev" type="button" data-bs-target="#c" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button><button class="carousel-control-next" type="button" data-bs-target="#c" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button></div>` : `<img src="${images[0]}" class="d-block w-100">`) : `<div style="height:200px;background:#eee;"></div>`;
             document.getElementById('modalContent').innerHTML = `<div class="position-relative"><button class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" style="z-index:10"></button>${sliderHTML}</div><div class="p-4"><h4 class="fw-bold">${item[KOLOM.NAMA_USAHA]}</h4><p>${desc}</p><a href="https://wa.me/${formatWA(item[KOLOM.WA])}" class="btn btn-success w-100 rounded-pill">Chat WA</a></div>`;
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
-
-        function filterToko() {
-            const val = document.getElementById('searchInput').value.toLowerCase().trim();
-            const clearBtn = document.getElementById('clearSearch');
-            clearBtn.style.display = val.length > 0 ? "block" : "none";
-            
-            const cards = document.getElementsByClassName('card-product');
-            let hasMatch = false;
-            for (let c of cards) {
-                if(c.textContent.toLowerCase().includes(val)) { c.style.setProperty('display', '', 'important'); hasMatch = true; } 
-                else { c.style.setProperty('display', 'none', 'important'); }
-            }
-            document.getElementById('emptyState').classList.toggle('d-none', hasMatch || val === "");
-        }
-        
-        function clearInput() { document.getElementById('searchInput').value = ""; filterToko(); }
-        
-        function formatWA(n) { return n ? (n.toString().startsWith('0') ? '62'+n.toString().substring(1) : n) : ''; }
-        function getAllImages(raw) { if(!raw) return []; return raw.toString().split(',').map(l => { let m = l.match(/id=([a-zA-Z0-9_-]{20,})/) || l.match(/\/d\/([a-zA-Z0-9_-]{20,})/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1000` : null }).filter(Boolean); }
-        function checkAndShowVideo() {
-            const today = new Date().toISOString().split('T')[0];
-            const lastSeen = localStorage.getItem('warganet_video_seen');
-            if (lastSeen !== today) { setTimeout(() => { new bootstrap.Modal(document.getElementById('videoModal')).show(); localStorage.setItem('warganet_video_seen', today); }, 1500); }
-        }
-        function forceShowVideo() { new bootstrap.Modal(document.getElementById('videoModal')).show(); }
     </script>
+    <button onclick="bukaKontak()" style="position: fixed; bottom: 80px; right: 20px; background-color: #0284c7; color: white; padding: 12px 20px; border-radius: 50px; border: none; font-weight: bold; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4); z-index: 9999; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: sans-serif; border: 2px solid white;">
+  📞 Nomor Penting
+</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSflTFL9MLwEFY-RIkhWoU9O_O1rrNcEY4IloT7cYOOYhXt2NA/viewform" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-family: sans-serif; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); z-index: 9999; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; font-size: 14px; border: 2px solid white;">
+  <span>📝 Input Info</span>
+</a>
+    <div id="modalKontak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; width: 95%; max-width: 450px; padding: 0; border-radius: 12px; position: relative; max-height: 85vh; overflow-y: auto;">
+    <div id="list-kontak-container">
+        <p style="text-align:center; padding:20px;">⏳ Menghubungi database...</p>
+    </div>
+  </div>
+</div>
+    <script>
+ // SATU PINTU UNTUK SEMUA:
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W8ycp_y9GLttQ7ajlSsOtkZkudewHT2PPAYCR_M8CIC_4OG71mfOMLrXshtYacXJ/exec';
+
+  // ============================================================
+  // 1️⃣ LOGIKA UTAMA: JALANKAN SEMUA SAAT WEB DIBUKA
+  // ============================================================
+  document.addEventListener('DOMContentLoaded', function() {
+      console.log("Website siap! Memulai pengambilan data...");
+      loadInfoWarga();   // Ambil data untuk Beranda/Info
+      loadRunningText(); // Ambil Running Text
+      preloadKontak();   // Curi start data kontak
+  });
+
+  // ============================================================
+  // 2️⃣ BAGIAN INFO WARGA (FIX MASALAH UNDEFINED)
+  // ============================================================
+  function loadInfoWarga() {
+      // Pastikan ID container ini benar (biasanya 'content-container')
+      const container = document.getElementById('content-container'); 
+      
+      if(!container) return; // Kalau gak nemu wadahnya, stop.
+
+      container.innerHTML = '<div style="text-align:center; padding:20px;">⏳ Sedang memuat kabar warga...</div>';
+
+      fetch(scriptURL)
+      .then(response => response.json())
+      .then(data => {
+          container.innerHTML = ''; // Hapus loading
+
+          if (data.length === 0) {
+              container.innerHTML = '<p style="text-align:center;">Belum ada info.</p>';
+              return;
+          }
+
+          // --- LOGIKA RENDER KARTU ---
+          data.forEach(item => {
+              // Format Tanggal
+              let tanggal = new Date(item.timestamp).toLocaleDateString('id-ID');
+
+              // Cek Foto
+              let gambarHTML = '';
+              if (item.foto && item.foto !== "") {
+                  gambarHTML = `<img src="${item.foto}" alt="Foto" style="width:100%; height:200px; object-fit:cover; border-radius:8px 8px 0 0;">`;
+              }
+
+              // RENDER HTML KARTU
+              // Perhatikan: kita pakai item.judul, item.deskripsi (BUKAN ANGKA)
+              const card = `
+                  <div class="card" style="background:white; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-bottom:20px; overflow:hidden; border:1px solid #f0f0f0;">
+                      ${gambarHTML}
+                      <div class="card-body" style="padding:15px;">
+                          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                              <span style="background:#e0f2fe; color:#0284c7; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${item.kategori}</span>
+                              <small style="color:#94a3b8;">${tanggal}</small>
+                          </div>
+                          <h3 style="margin:0 0 10px 0; font-size:18px; color:#1e293b; line-height:1.4;">${item.judul}</h3>
+                          <p style="color:#475569; font-size:14px; line-height:1.6; margin-bottom:15px;">${item.deskripsi}</p>
+                          <div style="border-top:1px solid #f1f5f9; padding-top:10px; font-size:13px; color:#64748b;">
+                              📢 Info dari: <strong>${item.dari}</strong>
+                          </div>
+                      </div>
+                  </div>
+              `;
+              container.innerHTML += card;
+          });
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          container.innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data info.</p>';
+      });
+  }
+
+  // ============================================================
+  // 3️⃣ BAGIAN RUNNING TEXT
+  // ============================================================
+  function loadRunningText() {
+      fetch(`${scriptURL}?action=running`)
+      .then(response => response.json())
+      .then(data => {
+          if(data.text) {
+              const marquee = document.getElementById('teks-berjalan');
+              if(marquee) marquee.innerText = data.text;
+          }
+      });
+  }
+
+  // ============================================================
+  // 4️⃣ BAGIAN KONTAK (MODAL POPUP)
+  // ============================================================
+  // --- 1. Fungsi Buka Modal & Ambil Data ---
+  window.bukaKontak = function() { 
+      const container = document.getElementById('list-kontak-container');
+      document.getElementById('modalKontak').style.display = 'flex';
+      
+      container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">⏳ Menghubungi database...</p>';
+      
+      fetch(`${scriptURL}?action=kontak&t=${new Date().getTime()}`)
+          .then(res => res.json())
+          .then(data => {
+              renderKontak(data);
+          })
+          .catch(err => {
+              console.error(err);
+              container.innerHTML = '<p style="text-align:center; color:red; padding:20px;">Gagal memuat nomor penting.</p>';
+          });
+  }
+
+  window.tutupKontak = function() {
+      document.getElementById('modalKontak').style.display = 'none';
+  }
+
+  // --- 2. Fungsi Gambar List (Tanpa Grouping/Tanpa Header Ganda) ---
+  function renderKontak(data) {
+      const container = document.getElementById('list-kontak-container');
+      container.innerHTML = '';
+
+      if (!data || data.length === 0) {
+          container.innerHTML = '<p style="text-align:center; padding:20px; color:#64748b;">Data kontak kosong.</p>';
+          return;
+      }
+
+      // HEADER TUNGGAL & TOMBOL SILANG
+      const headerHtml = `
+          <div class="header-kontak sticky-top" style="top: 0; z-index: 1000; background: #ffffff; padding: 15px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+              <h6 class="mb-0 fw-bold text-primary" style="margin:0; font-size: 1.1rem;">
+                  <i class="fas fa-phone-square-alt me-2"></i>Nomor Penting
+              </h6>
+              <button onclick="tutupKontak()" style="border: none; background: #f1f5f9; color: #64748b; width: 32px; height: 32px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 0;">
+                  &times;
+              </button>
+          </div>
+      `;
+
+      // LIST NOMOR
+      const listHtml = `
+          <div class="list-group list-group-flush">
+              ${data.map(item => {
+                  let nama = item['Nama'] || 'Tanpa Nama';
+                  let rawNum = item['Nomor'] || '';
+                  let cleanNum = rawNum.toString().replace(/[^0-9]/g, '');
+                  if (cleanNum.startsWith('0')) cleanNum = '62' + cleanNum.substring(1);
+
+                  let isEmergency = cleanNum.length <= 4;
+                  let link = isEmergency ? `tel:${cleanNum}` : `https://wa.me/${cleanNum}`;
+                  let icon = isEmergency ? 'fa-phone-alt' : 'fa-whatsapp';
+                  let btnColor = isEmergency ? '#ef4444' : '#22c55e';
+                  let btnText = isEmergency ? 'Panggil' : 'WA';
+
+                  return `
+                  <div class="list-group-item d-flex justify-content-between align-items-center" style="padding: 15px; border-bottom: 1px solid #f1f5f9; background:white;">
+                      <div style="flex: 1; padding-right: 10px;">
+                          <div style="font-weight:bold; color:#334155; font-size: 0.95rem;">${nama}</div>
+                          <div style="font-size:0.8rem; color:#64748b; margin-top: 2px;">${rawNum}</div>
+                      </div>
+                      <a href="${link}" target="_blank" style="background:${btnColor}; color:white; padding:8px 16px; border-radius:20px; text-decoration:none; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:5px; white-space: nowrap;">
+                          <i class="fab ${icon}"></i> ${btnText}
+                      </a>
+                  </div>`;
+              }).join('')}
+          </div>
+      `;
+
+      container.innerHTML = headerHtml + listHtml;
+  }
+        // --- FUNGSI SEARCH & CLEAR INPUT ---
+function filterToko() {
+    const input = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    const filter = input.value.toLowerCase().trim();
+    const container = document.getElementById('productContainer');
+    const emptyState = document.getElementById('emptyState');
+    
+    // Munculkan/Sembunyikan tombol silang
+    clearBtn.style.display = input.value.length > 0 ? "block" : "none";
+
+    const cards = container.getElementsByClassName('card-product');
+    let hasMatch = false;
+
+    for (let i = 0; i < cards.length; i++) {
+        const textValue = (cards[i].textContent || cards[i].innerText).toLowerCase();
+        if (textValue.indexOf(filter) > -1) {
+            cards[i].style.setProperty('display', '', 'important');
+            hasMatch = true; // Ada yang cocok!
+        } else {
+            cards[i].style.setProperty('display', 'none', 'important');
+        }
+    }
+
+    // Munculkan pesan "Data Tidak Ditemukan" jika tidak ada yang cocok
+    if (hasMatch || filter === "") {
+        emptyState.classList.add('d-none');
+    } else {
+        emptyState.classList.remove('d-none');
+    }
+}
+
+// Fungsi untuk hapus ketikan sekali klik
+function clearInput() {
+    const input = document.getElementById('searchInput');
+    input.value = "";
+    filterToko(); // Jalankan filter lagi biar semua kartu muncul
+    input.focus(); // Balikin kursor ke kotak search
+}
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
