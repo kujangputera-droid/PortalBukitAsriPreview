@@ -623,30 +623,36 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX ANTI-ERROR) ---
+        // --- MESIN PENCARIAN DIREKTORI (VERSI FIX BOOTSTRAP) ---
 function filterToko() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
     const container = document.getElementById('daftar-jualan-container');
     
-    // Ambil semua kartu jualan
-    const cards = container.children; 
+    // Cari semua elemen yang punya class 'card' di dalam container
+    const cards = container.querySelectorAll('.card');
 
-    for (let i = 0; i < cards.length; i++) {
-        const textValue = cards[i].textContent || cards[i].innerText;
+    cards.forEach(card => {
+        // Kita ambil teks dari kartu tersebut
+        const textValue = card.textContent || card.innerText;
         
+        // Cari "Pembungkus" kartu tersebut (biasanya div kolom)
+        // supaya kalau kartu sembunyi, ruang kosongnya juga hilang
+        const wrapper = card.parentElement; 
+
         if (textValue.toLowerCase().indexOf(filter) > -1) {
-            // Munculkan kembali (pakai '' biar balik ke settingan awal CSS)
-            cards[i].style.setProperty('display', '', 'important');
+            // Tampilkan pembungkusnya
+            wrapper.style.setProperty('display', '', 'important');
         } else {
-            // Sembunyikan total
-            cards[i].style.setProperty('display', 'none', 'important');
+            // Sembunyikan pembungkusnya
+            wrapper.style.setProperty('display', 'none', 'important');
         }
-    }
+    });
 }
 </script>
 </body>
 </html>
+
 
 
 
