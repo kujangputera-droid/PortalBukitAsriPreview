@@ -623,37 +623,39 @@
 
       container.innerHTML = headerHtml + listHtml;
   }
-        // --- MESIN PENCARIAN DIREKTORI (VERSI FINAL SINKRON) ---
+        // --- MESIN PENCARIAN KHUSUS JUALAN (VERSI FIX TAB) ---
 function filterToko() {
+    // 1. Ambil kata kunci
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase().trim();
     
-    // Kita arahkan langsung ke productContainer punya kamu
+    // 2. Kunci Target ke productContainer (Hanya area Jualan)
     const container = document.getElementById('productContainer');
-    
-    // Cari semua kartu jualan di dalamnya
+    if (!container) return;
+
+    // 3. Ambil semua kartu jualan yang ada di dalamnya
     const cards = container.querySelectorAll('.card');
 
     cards.forEach(card => {
-        // Ambil teks (Nama Produk, Toko, dll)
+        // Ambil semua teks dalam kartu (Produk, Toko, Deskripsi)
         const textValue = (card.textContent || card.innerText).toLowerCase();
         
-        // Cari pembungkus kolom Bootstrap-nya
-        const colWrapper = card.closest('[class*="col"]'); 
-        const targetElement = colWrapper || card;
+        // Cari pembungkus kolomnya (Bootstrap col) agar layout tidak ompong
+        const colWrapper = card.closest('[class*="col"]') || card;
 
-        if (textValue.indexOf(filter) > -1) {
-            // Tampilkan kembali
-            targetElement.style.setProperty('display', '', 'important');
+        // 4. Logika Sembunyi/Tampilkan
+        if (textValue.includes(filter)) {
+            // Kita pakai flex karena biasanya Bootstrap card dalam row itu flex/block
+            colWrapper.style.setProperty('display', '', 'important');
         } else {
-            // Sembunyikan
-            targetElement.style.setProperty('display', 'none', 'important');
+            colWrapper.style.setProperty('display', 'none', 'important');
         }
     });
 }
 </script>
 </body>
 </html>
+
 
 
 
